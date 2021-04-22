@@ -6,7 +6,7 @@ using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
-using UnityEngine.Networking;
+//using UnityEngine.Networking;
 
 namespace MixedRealityExtension.Assets
 {
@@ -22,7 +22,7 @@ namespace MixedRealityExtension.Assets
 			public bool IsPopulated => ReturnCode != 0;
 		}
 
-		public static async Task<FetchResult> LoadTask(MonoBehaviour runner, Uri uri)
+		public static async Task<FetchResult> LoadTask(Node runner, Uri uri)
 		{
 			// acquire the exclusive right to load this asset
 			if (!await MREAPI.AppsAPI.AssetCache.AcquireLoadingLock(uri))
@@ -51,7 +51,8 @@ namespace MixedRealityExtension.Assets
 				return result;
 			}
 
-			runner.StartCoroutine(LoadCoroutine());
+			//FIXME
+			//runner.StartCoroutine(LoadCoroutine());
 
 			// Spin asynchronously until the request completes.
 			while (!result.IsPopulated)
@@ -71,13 +72,13 @@ namespace MixedRealityExtension.Assets
 			{
 				MREAPI.AppsAPI.AssetCache.StoreAssets(
 					uri,
-					new UnityEngine.Object[] { result.Asset },
+					new Godot.Object[] { result.Asset },
 					result.ETag);
 			}
 
 			MREAPI.AppsAPI.AssetCache.ReleaseLoadingLock(uri);
 			return result;
-
+/*FIXME
 			IEnumerator LoadCoroutine()
 			{
 				DownloadHandler handler;
@@ -138,6 +139,7 @@ namespace MixedRealityExtension.Assets
 					}
 				}
 			}
+*/
 		}
 	}
 }

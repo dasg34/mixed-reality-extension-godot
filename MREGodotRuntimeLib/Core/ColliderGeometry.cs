@@ -4,7 +4,7 @@
 using MixedRealityExtension.API;
 using MixedRealityExtension.App;
 using MixedRealityExtension.Core.Types;
-using MixedRealityExtension.Util.Unity;
+using MixedRealityExtension.Util.GodotHelper;
 using System;
 using Godot;
 
@@ -106,7 +106,7 @@ namespace MixedRealityExtension.Core
 			}
 		}
 	}
-
+/*FIXME
 	/// <summary>
 	/// Class that represents the mesh geometry of a mesh collider.
 	/// </summary>
@@ -139,7 +139,7 @@ namespace MixedRealityExtension.Core
 			});
 		}
 	}
-
+*/
 	/// <summary>
 	/// Class that describes a capsule-shaped collision volume
 	/// </summary>
@@ -160,15 +160,6 @@ namespace MixedRealityExtension.Core
 		public MWVector3 Size { get; set; }
 
 		/// <summary>
-		/// The primary axis of the capsule (x = 0, y = 1, z = 2)
-		/// </summary>
-		public int? Direction
-		{
-			get => Size?.LargestComponentIndex();
-
-		}
-
-		/// <summary>
 		/// The height of the capsule along its primary axis, including end caps
 		/// </summary>
 		public float? Height
@@ -186,28 +177,22 @@ namespace MixedRealityExtension.Core
 
 		internal override void Patch(MixedRealityExtensionApp app, GodotCollisionShape collider)
 		{
-			if (collider is CapsuleCollider capsuleCollider)
+			if (collider.Shape is CapsuleShape capsuleShape)
 			{
-				Patch(capsuleCollider);
-			}
-		}
+				if (Center != null)
+				{
+					Vector3 newCenter;
+					newCenter.x = Center.X;
+					newCenter.y = Center.Y;
+					newCenter.z = Center.Z;
+					collider.Transform = new Transform() { origin = newCenter };
+				}
 
-		private void Patch(CapsuleCollider collider)
-		{
-			if (Center != null)
-			{
-				Vector3 newCenter;
-				newCenter.x = Center.X;
-				newCenter.y = Center.Y;
-				newCenter.z = Center.Z;
-				collider.center = newCenter;
-			}
-
-			if (Size != null)
-			{
-				collider.radius = Radius.Value;
-				collider.height = Height.Value;
-				collider.direction = Direction.Value;
+				if (Size != null)
+				{
+					capsuleShape.Radius = Radius.Value;
+					capsuleShape.Height = Height.Value;
+				}
 			}
 		}
 	}

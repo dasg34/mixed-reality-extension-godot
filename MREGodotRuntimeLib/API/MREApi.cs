@@ -38,6 +38,11 @@ namespace MixedRealityExtension.API
 	{
 		private AppManager _apps = new AppManager();
 
+		/// <summary>
+		/// The class responsible for long-term asset caching.
+		/// </summary>
+		public IAssetCache AssetCache { get; internal set; }
+		
 		internal IPermissionManager PermissionManager { get; set; }
 
 		/// <summary>

@@ -37,6 +37,7 @@ namespace MixedRealityExtension.App
 	{
 		private readonly AssetLoader _assetLoader;
 		private readonly UserManager _userManager;
+		private readonly ActorManager _actorManager;
 		private readonly CommandManager _commandManager;
 		private readonly AssetManager _assetManager;
 		private readonly Node _ownerScript;

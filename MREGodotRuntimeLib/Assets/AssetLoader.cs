@@ -18,7 +18,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
+using Godot;
 using UnityGLTF;
 using UnityGLTF.Loader;
 using MWMaterial = MixedRealityExtension.Assets.Material;
@@ -39,9 +39,9 @@ namespace MixedRealityExtension.Assets
 
 		public readonly HashSet<Guid> ActiveContainers = new HashSet<Guid>();
 
-		internal AssetLoader(MonoBehaviour owner, MixedRealityExtensionApp app)
+		internal AssetLoader(Node owner, MixedRealityExtensionApp app)
 		{
-			_owner = owner ?? throw new ArgumentException("Asset loader requires an owner MonoBehaviour script to be assigned to it.");
+			_owner = owner ?? throw new ArgumentException("Asset loader requires an owner Node script to be assigned to it.");
 			_app = app ?? throw new ArgumentException("Asset loader requires a MixedRealityExtensionApp to be associated with.");
 			_asyncHelper = _owner.gameObject.GetComponent<AsyncCoroutineHelper>() ??
 						   _owner.gameObject.AddComponent<AsyncCoroutineHelper>();

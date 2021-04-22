@@ -7,15 +7,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
-using Object = UnityEngine.Object;
+using Godot;
+using Object = Godot.Object;
 
 namespace MixedRealityExtension.Assets
 {
 	/// <summary>
 	/// Default in-memory implementation of the asset cache interface
 	/// </summary>
-	public class AssetCache : MonoBehaviour, IAssetCache
+	public class AssetCache : Object, IAssetCache
 	{
 		protected class CacheItem
 		{
@@ -67,7 +67,7 @@ namespace MixedRealityExtension.Assets
 
 		protected readonly Dictionary<Uri, CacheItem> Cache = new Dictionary<Uri, CacheItem>(100);
 		protected readonly Dictionary<Uri, SemaphoreSlim> LoadingLocks = new Dictionary<Uri, SemaphoreSlim>(100);
-		private Coroutine CleanTimer = null;
+		private Godot.Timer CleanTimer = null;
 
 		/// <summary>
 		/// The maximum time (in seconds) dereferenced assets are allowed to stay in memory.
@@ -75,7 +75,7 @@ namespace MixedRealityExtension.Assets
 		public int CleanInterval { get; set; } = 30;
 
 		///<inheritdoc/>
-		public GameObject CacheRootGO { get; set; }
+		public Node CacheRootGO { get; set; }
 
 		[SerializeField]
 		private GameObject SerializedCacheRoot = null;
@@ -208,7 +208,7 @@ namespace MixedRealityExtension.Assets
 					foreach (var o in item.Assets)
 					{
 						CacheInspector.Remove(o);
-						Object.Destroy(o);
+						o.Free();
 					}
 					return true;
 				}
@@ -232,19 +232,19 @@ namespace MixedRealityExtension.Assets
 			}
 		}
 
-		private void ScheduleCleanUnusedResources()
+		private async void ScheduleCleanUnusedResources()
 		{
 			if (CleanTimer == null)
 			{
-				CleanTimer = StartCoroutine(CleanupCoroutine());
+				CleanTimer = new Godot.Timer()
+				{
+					WaitTime = CleanInterval,
+				};
+				
+				await ToSignal(CleanTimer, "timeout");
+				CleanUnusedResources();
+				CleanTimer = null;
 			}
-		}
-
-		private IEnumerator CleanupCoroutine()
-		{
-			yield return new WaitForSeconds(CleanInterval);
-			CleanUnusedResources();
-			CleanTimer = null;
 		}
 	}
 }
