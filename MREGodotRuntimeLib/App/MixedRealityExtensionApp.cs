@@ -3,7 +3,7 @@
 
 using MixedRealityExtension.Animation;
 using MixedRealityExtension.API;
-//using MixedRealityExtension.Assets;
+using MixedRealityExtension.Assets;
 using MixedRealityExtension.Core;
 //using MixedRealityExtension.Core.Components;
 using MixedRealityExtension.Core.Interfaces;
@@ -35,9 +35,10 @@ namespace MixedRealityExtension.App
 {
 	internal sealed class MixedRealityExtensionApp : IMixedRealityExtensionApp, ICommandHandlerContext
 	{
+		private readonly AssetLoader _assetLoader;
 		private readonly UserManager _userManager;
 		private readonly CommandManager _commandManager;
-
+		private readonly AssetManager _assetManager;
 		private readonly Node _ownerScript;
 
 		private IConnectionInternal _conn;
@@ -143,8 +144,7 @@ namespace MixedRealityExtension.App
 		/// <inheritdoc />
 		public RPCChannelInterface RPCChannels { get; }
 
-		//FIXME
-		//public AssetManager AssetManager => _assetManager;
+		public AssetManager AssetManager => _assetManager;
 
 		#endregion
 
@@ -686,6 +686,21 @@ namespace MixedRealityExtension.App
 		{
 			RPCChannels.ReceiveRPC(payload);
 			onCompleteCallback?.Invoke();
+		}
+
+		[CommandHandler(typeof(CreateEmpty))]
+		private void OnCreateEmpty(CreateEmpty payload, Action onCompleteCallback)
+		{
+			try
+			{
+				var actors = _assetLoader.CreateEmpty(payload.Actor?.ParentId);
+				ProcessCreatedActors(payload, actors, onCompleteCallback);
+			}
+			catch (Exception e)
+			{
+				SendCreateActorResponse(payload, failureMessage: e.ToString(), onCompleteCallback: onCompleteCallback);
+				Debug.LogException(e);
+			}
 		}
 
 		[CommandHandler(typeof(SetAuthoritative))]
