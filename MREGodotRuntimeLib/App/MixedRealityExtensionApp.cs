@@ -136,7 +136,7 @@ namespace MixedRealityExtension.App
 		public Uri ServerAssetUri { get; private set; }
 
 		/// <inheritdoc />
-		public Node SceneRoot { get; set; }
+		public Spatial SceneRoot { get; set; }
 
 		/// <inheritdoc />
 		public IUser LocalUser { get; private set; }

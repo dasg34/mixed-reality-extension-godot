@@ -43,6 +43,7 @@ namespace MixedRealityExtension.Core.Components
 
 		void Update()
 		{
+/*FIXME
 			if (_lookAtMode != LookAtMode.None && _targetObject != null)
 			{
 				var rotation = CalcRotation();
@@ -51,8 +52,9 @@ namespace MixedRealityExtension.Core.Components
 					rotation = rotation.Value;
 				}
 			}
+*/
 		}
-
+/*FIXME
 		private Quat? CalcRotation()
 		{
 			Vector3 pos = _targetObject.Transform.origin;
@@ -69,7 +71,7 @@ namespace MixedRealityExtension.Core.Components
 				delta *= -1;
 			}
 
-			Quat look = _targetObject.Transform.LookingAt(delta, Vector3.Up).origin;
+			//Quat look = _targetObject.Transform.LookingAt(delta, Vector3.Up).origin;
 
 			if (_lookAtMode == LookAtMode.TargetY)
 			{
@@ -78,5 +80,6 @@ namespace MixedRealityExtension.Core.Components
 
 			return look;
 		}
+*/
 	}
 }
