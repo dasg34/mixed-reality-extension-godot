@@ -1987,7 +1987,7 @@ namespace MixedRealityExtension.Core
 				mediaInstance.Instance = null;
 			}
 		}
-
+*/
 
 		[CommandHandler(typeof(InterpolateActor))]
 		private void OnInterpolateActor(InterpolateActor payload, Action onCompleteCallback)
@@ -2001,7 +2001,7 @@ namespace MixedRealityExtension.Core
 					payload.Enabled);
 			onCompleteCallback?.Invoke();
 		}
-*/
+
 		[CommandHandler(typeof(SetBehavior))]
 		private void OnSetBehavior(SetBehavior payload, Action onCompleteCallback)
 		{
