@@ -1740,7 +1740,7 @@ namespace MixedRealityExtension.Core
 		{
 			ExecuteRigidBodyCommands(payload, onCompleteCallback);
 		}
-/*FIXME
+
 		[CommandHandler(typeof(CreateAnimation))]
 		private void OnCreateAnimation(CreateAnimation payload, Action onCompleteCallback)
 		{
@@ -1796,7 +1796,7 @@ namespace MixedRealityExtension.Core
 				.SetAnimationState(payload.AnimationName, payload.State.Time, payload.State.Speed, payload.State.Enabled);
 			onCompleteCallback?.Invoke();
 		}
-
+/*FIXME
 		[CommandHandler(typeof(SetMediaState))]
 		private void OnSetMediaState(SetMediaState payload, Action onCompleteCallback)
 		{
