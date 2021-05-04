@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 using MixedRealityExtension.App;
-using Texture = Godot.Texture;
-using Material = Godot.SpatialMaterial;
+using Texture = Godot.Texture2D;
+using Material = Godot.StandardMaterial3D;
 using MWMaterial = MixedRealityExtension.Assets.Material;
 
 namespace MixedRealityExtension.PluginInterfaces

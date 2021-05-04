@@ -29,7 +29,7 @@ namespace MixedRealityExtension.Messaging.Payloads
 	[PayloadType(typeof(RBAddTorque), "rigidbody-add-torque")]
 	[PayloadType(typeof(RBMovePosition), "rigidbody-move-position")]
 	[PayloadType(typeof(RBMoveRotation), "rigidbody-move-rotation")]
-	[PayloadType(typeof(RigidBodyCommands), "rigidbody-commands")]
+	[PayloadType(typeof(RigidBody3DCommands), "rigidbody-commands")]
 
 	[PayloadType(typeof(TriggerEventRaised), "trigger-event-raised")]
 	[PayloadType(typeof(CreateFromLibrary), "create-from-library")]

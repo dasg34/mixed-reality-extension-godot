@@ -144,7 +144,7 @@ namespace MixedRealityExtension.Messaging.Payloads
 	/// App => Engine
 	/// Payload for when the app wants to execute one or more commands on the rigid body of an actor.
 	/// </summary>
-	public class RigidBodyCommands : NetworkCommandPayload
+	public class RigidBody3DCommands : NetworkCommandPayload
 	{
 		/// <summary>
 		/// The id of the actor to execute rigid body commands on.

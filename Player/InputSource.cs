@@ -6,11 +6,11 @@ using Godot;
 
 namespace Assets.Scripts.User
 {
-	public class InputSource : Spatial
+	public partial class InputSource : Node3D
 	{
 		private Tool _currentTool;
 
-		internal RayCast rayCast;
+		internal RayCast3D rayCast;
 		public Node UserNode;
 
 		public Tool CurrentTool => _currentTool;
@@ -19,8 +19,8 @@ namespace Assets.Scripts.User
 
 		public override void _Ready()
 		{
-			rayCast = GetNode<RayCast>("../RayCast");
-			rayCast.CastTo = new Vector3(0, 0, -100);
+			rayCast = GetNode<RayCast3D>("../RayCast");
+			rayCast.TargetPosition = new Vector3(0, 0, -100);
 			_currentTool = ToolCache.GetOrCreateTool<TargetTool>();
 			_currentTool.OnToolHeld(this);
 		}

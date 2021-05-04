@@ -9,9 +9,9 @@ using MixedRealityExtension.PluginInterfaces;
 using MixedRealityExtension.Util.GodotHelper;
 using System;
 using System.Collections.Generic;
-using Material = Godot.SpatialMaterial;
+using Material = Godot.StandardMaterial3D;
 using MWMaterial = MixedRealityExtension.Assets.Material;
-using Texture = Godot.Texture;
+using Texture = Godot.Texture2D;
 
 namespace MixedRealityExtension.Factories
 {

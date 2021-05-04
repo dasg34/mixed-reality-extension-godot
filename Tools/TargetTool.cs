@@ -12,7 +12,7 @@ namespace Assets.Scripts.Tools
 		private GrabTool _grabTool = new GrabTool();
 		private TargetBehavior _currentTargetBehavior;
 
-		public Spatial Target { get; private set; }
+		public Node3D Target { get; private set; }
 
 		public bool TargetGrabbed => _grabTool.GrabActive;
 
@@ -100,8 +100,8 @@ namespace Assets.Scripts.Tools
 			{
 				newBehavior = newTarget.GetBehavior<TargetBehavior>();
 
-				// FIXME: This is workaround. Sometimes newBehavior is null even if new Target is an Actor!
-				if (newBehavior == null && newTarget is MixedRealityExtension.Core.Actor)
+				// FIXME: This is workaround. Sometimes newBehavior is null.
+				if (newBehavior == null)
 				{
 					return;
 				}
@@ -136,9 +136,9 @@ namespace Assets.Scripts.Tools
 		}
 
 		protected virtual void OnTargetChanged(
-			Spatial oldTarget,
+			Node3D oldTarget,
 			Vector3 oldTargetPoint,
-			Spatial newTarget,
+			Node3D newTarget,
 			Vector3 newTargetPoint,
 			TargetBehavior newBehavior,
 			InputSource inputSource)
@@ -173,12 +173,12 @@ namespace Assets.Scripts.Tools
 			OnGrabStateChanged(args.OldGrabState, args.NewGrabState, args.InputSource);
 		}
 
-		private Spatial FindTarget(InputSource inputSource, out Vector3? hitPoint)
+		private Node3D FindTarget(InputSource inputSource, out Vector3? hitPoint)
 		{
 			if (inputSource.rayCast.IsColliding())
 			{
 				hitPoint = inputSource.rayCast.GetCollisionPoint();
-				return (inputSource.rayCast.GetCollider() as Node).GetParent() as Spatial;
+				return (inputSource.rayCast.GetCollider() as Node).GetParent() as Node3D;
 			}
 			else
 			{

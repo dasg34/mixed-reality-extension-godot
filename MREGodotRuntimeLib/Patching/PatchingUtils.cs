@@ -7,11 +7,11 @@ using MixedRealityExtension.Util;
 using Godot;
 
 using MRECollisionDetectionMode = MixedRealityExtension.Core.Interfaces.CollisionDetectionMode;
-using MRERigidBodyConstraints = MixedRealityExtension.Core.Interfaces.RigidBodyConstraints;
+using MRERigidBody3DConstraints = MixedRealityExtension.Core.Interfaces.RigidBody3DConstraints;
 //using MRELight = MixedRealityExtension.Core.Light;
 //using UnityCollisionDetectionMode = UnityEngine.CollisionDetectionMode;
-//using UnityRigidBodyConstraints = UnityEngine.RigidbodyConstraints;
-using UnityLight = Godot.Light;
+//using UnityRigidBody3DConstraints = UnityEngine.RigidbodyConstraints;
+using UnityLight = Godot.Light3D;
 using MixedRealityExtension.Util.GodotHelper;
 
 namespace MixedRealityExtension.Patching
@@ -197,19 +197,19 @@ namespace MixedRealityExtension.Patching
 			}
 		}
 		/*FIXME
-		public static RigidBodyPatch GeneratePatch(RigidBody _old, Rigidbody _new,
+		public static RigidBody3DPatch GeneratePatch(RigidBody3D _old, Rigidbody _new,
 			Transform sceneRoot, bool addVelocities)
 		{
 			if (_old == null && _new != null)
 			{
-				return new RigidBodyPatch(_new, sceneRoot);
+				return new RigidBody3DPatch(_new, sceneRoot);
 			}
 			else if (_new == null)
 			{
 				return null;
 			}
 
-			var patch = new RigidBodyPatch()
+			var patch = new RigidBody3DPatch()
 			{
 				// Do not include Position or Rotation in the patch.
 				
@@ -224,7 +224,7 @@ namespace MixedRealityExtension.Patching
 					UtilMethods.ConvertEnum<MRECollisionDetectionMode, UnityCollisionDetectionMode>(_new.collisionDetectionMode)),
 				ConstraintFlags = GeneratePatch(
 					_old.ConstraintFlags,
-					UtilMethods.ConvertEnum<MRERigidBodyConstraints, UnityRigidBodyConstraints>(_new.constraints)),
+					UtilMethods.ConvertEnum<MRERigidBody3DConstraints, UnityRigidBody3DConstraints>(_new.constraints)),
 				DetectCollisions = GeneratePatch(_old.DetectCollisions, _new.detectCollisions),
 				Mass = GeneratePatch(_old.Mass, _new.mass),
 				UseGravity = GeneratePatch(_old.UseGravity, _new.useGravity),
@@ -400,7 +400,7 @@ namespace MixedRealityExtension.Patching
 			return _this;
 		}
 
-		public static void ApplyLocalPatch(this Spatial _this, MWScaledTransform current, ScaledTransformPatch patch)
+		public static void ApplyLocalPatch(this Node3D _this, MWScaledTransform current, ScaledTransformPatch patch)
 		{
 			if (patch.Position != null)
 			{
@@ -420,7 +420,7 @@ namespace MixedRealityExtension.Patching
 			}
 		}
 
-		public static void ApplyAppPatch(this Spatial _this, Spatial appRoot, MWTransform current, TransformPatch patch)
+		public static void ApplyAppPatch(this Node3D _this, Node3D appRoot, MWTransform current, TransformPatch patch)
 		{
 			if (patch.Position != null)
 			{

@@ -22,7 +22,7 @@ using System.Linq;
 using Godot;
 
 //using UnityLight = UnityEngine.Light;
-using GodotCollisionShape = Godot.CollisionShape;
+using GodotCollisionShape = Godot.CollisionShape3D;
 using MixedRealityExtension.PluginInterfaces.Behaviors;
 using MixedRealityExtension.Util;
 //using IVideoPlayer = MixedRealityExtension.PluginInterfaces.IVideoPlayer;
@@ -34,9 +34,9 @@ namespace MixedRealityExtension.Core
 	/// <summary>
 	/// Class that represents an actor in a mixed reality extension app.
 	/// </summary>
-	internal sealed class Actor : MixedRealityExtensionObject, ICommandHandlerContext, IActor
+	internal sealed partial class Actor : MixedRealityExtensionObject, ICommandHandlerContext, IActor
 	{
-		private RigidBody _rigidbody;
+		private RigidBody3D _rigidbody;
 		//private UnityLight _light;
 		private GodotCollisionShape _collider;
 		private ColliderPatch _pendingColliderPatch;
@@ -88,6 +88,13 @@ namespace MixedRealityExtension.Core
 		/// <inheritdoc />
 		public IActor Parent => App.FindActor(ParentId);
 
+		/// <inheritdoc />
+		public new string Name
+		{
+			get => ((Node)this).Name;
+			set => ((Node)this).Name = value;
+		}
+		
 		private Guid? Owner = null;
 
 		/// <inheritdoc />
@@ -139,9 +146,9 @@ namespace MixedRealityExtension.Core
 
 		internal Guid ParentId { get; set; } = Guid.Empty;
 
-		internal RigidBody RigidBody { get; private set; }
+		internal RigidBody3D RigidBody3D { get; private set; }
 
-		internal Light Light { get; private set; }
+		internal Light3D Light { get; private set; }
 
 		internal IText Text { get; private set; }
 
@@ -272,7 +279,7 @@ namespace MixedRealityExtension.Core
 					actorPatch.ParentId = ParentId;
 				}
 /*FIXME
-				if (!App.UsePhysicsBridge || RigidBody == null)
+				if (!App.UsePhysicsBridge || RigidBody3D == null)
 				{
 					if (ShouldSync(subscriptions, ActorComponentType.Transform))
 					{
@@ -284,7 +291,7 @@ namespace MixedRealityExtension.Core
 				{
 					// we should include the velocities either when the old sync model is used
 					// OR when there is an explicit subscription to it.
-					GenerateRigidBodyPatch(actorPatch,
+					GenerateRigidBody3DPatch(actorPatch,
 						(!App.UsePhysicsBridge || subscriptions.HasFlag(ActorComponentType.RigidbodyVelocity)));
 				}
 */
@@ -333,7 +340,7 @@ namespace MixedRealityExtension.Core
 			PatchCollider(actorPatch.Collider);
 /*
 			PatchLight(actorPatch.Light);
-			PatchRigidBody(actorPatch.RigidBody);
+			PatchRigidBody3D(actorPatch.RigidBody3D);
 			
 			PatchText(actorPatch.Text);
 			PatchAttachment(actorPatch.Attachment);
@@ -358,7 +365,7 @@ namespace MixedRealityExtension.Core
 			ApplyCorrection(actorCorrection);
 		}
 */
-		internal void ExecuteRigidBodyCommands(RigidBodyCommands commandPayload, Action onCompleteCallback)
+		internal void ExecuteRigidBody3DCommands(RigidBody3DCommands commandPayload, Action onCompleteCallback)
 		{
 			foreach (var command in commandPayload.CommandPayloads.OfType<ICommandPayload>())
 			{
@@ -471,7 +478,7 @@ namespace MixedRealityExtension.Core
 			if (generateAll)
 			{
 				/*FIXME
-				var rigidBody = PatchingUtilMethods.GeneratePatch(RigidBody, (Rigidbody)null,
+				var rigidBody = PatchingUtilMethods.GeneratePatch(RigidBody3D, (Rigidbody)null,
 					App.SceneRoot.transform, !App.UsePhysicsBridge);
 				*/
 
@@ -489,7 +496,7 @@ namespace MixedRealityExtension.Core
 
 				output.ParentId = ParentId;
 				output.Name = Name;
-//				output.RigidBody = rigidBody;
+//				output.RigidBody3D = rigidBody;
 				output.Collider = collider;
 				output.Appearance = new AppearancePatch()
 				{
@@ -502,13 +509,13 @@ namespace MixedRealityExtension.Core
 			return output;
 		}
 /*
-		internal OperationResult EnableRigidBody(RigidBodyPatch rigidBodyPatch)
+		internal OperationResult EnableRigidBody3D(RigidBody3DPatch rigidBodyPatch)
 		{
-			if (AddRigidBody() != null)
+			if (AddRigidBody3D() != null)
 			{
 				if (rigidBodyPatch != null)
 				{
-					PatchRigidBody(rigidBodyPatch);
+					PatchRigidBody3D(rigidBodyPatch);
 				}
 
 				return new OperationResult()
@@ -590,7 +597,7 @@ namespace MixedRealityExtension.Core
 
 			//if ((flags & SubscriptionType.Rigidbody) != SubscriptionType.None)
 			//{
-			//    actorPatch.Transform = this.RigidBody.AsPatch();
+			//    actorPatch.Transform = this.RigidBody3D.AsPatch();
 			//}
 
 			if (actorPatch.IsPatched())
@@ -633,9 +640,9 @@ namespace MixedRealityExtension.Core
 
 			if (App.UsePhysicsBridge)
 			{
-				if (RigidBody != null)
+				if (RigidBody3D != null)
 				{
-					App.PhysicsBridge.removeRigidBody(Id);
+					App.PhysicsBridge.removeRigidBody3D(Id);
 				}
 			}
 
@@ -682,8 +689,8 @@ namespace MixedRealityExtension.Core
 				}
 
 				//FIXME
-				//RigidBody = RigidBody ?? new RigidBody(_rigidbody, App.SceneRoot.transform);
-				//RigidBody.Update();
+				//RigidBody3D = RigidBody3D ?? new RigidBody3D(_rigidbody, App.SceneRoot.transform);
+				//RigidBody3D.Update();
 				// TODO: Send this update if actor is set to "high-frequency" updates
 				//Actor.SynchronizeApp();
 			}
@@ -827,7 +834,7 @@ namespace MixedRealityExtension.Core
 			return Light;
 		}
 
-		void OnRigidBodyGrabbed(object sender, ActionStateChangedArgs args)
+		void OnRigidBody3DGrabbed(object sender, ActionStateChangedArgs args)
 		{
 			if (App.UsePhysicsBridge)
 			{
@@ -836,7 +843,7 @@ namespace MixedRealityExtension.Core
 					if (_isExclusiveToUser)
 					{
 						// if rigid body is exclusive to user, manage rigid body directly
-						_rigidbody.isKinematic = args.NewState == ActionState.Started ? true : RigidBody.IsKinematic;
+						_rigidbody.isKinematic = args.NewState == ActionState.Started ? true : RigidBody3D.IsKinematic;
 					}
 					else
 					{
@@ -849,19 +856,19 @@ namespace MixedRealityExtension.Core
 						else
 						{
 							// on end of grab, return to original value
-							App.PhysicsBridge.setKeyframed(Id, RigidBody.IsKinematic);
+							App.PhysicsBridge.setKeyframed(Id, RigidBody3D.IsKinematic);
 						}
 					}
 				}
 			}
 		}
 
-		private RigidBody AddRigidBody()
+		private RigidBody3D AddRigidBody3D()
 		{
 			if (_rigidbody == null)
 			{
 				_rigidbody = gameObject.AddComponent<Rigidbody>();
-				RigidBody = new RigidBody(_rigidbody, App.SceneRoot.transform);
+				RigidBody3D = new RigidBody3D(_rigidbody, App.SceneRoot.transform);
 
 				if (App.UsePhysicsBridge)
 				{
@@ -869,7 +876,7 @@ namespace MixedRealityExtension.Core
 					// Otherwise, do it once source is provided.
 					if (Owner.HasValue && !_isExclusiveToUser)
 					{
-						App.PhysicsBridge.addRigidBody(Id, _rigidbody, Owner.Value, RigidBody.IsKinematic);
+						App.PhysicsBridge.addRigidBody3D(Id, _rigidbody, Owner.Value, RigidBody3D.IsKinematic);
 					}
 				}
 
@@ -879,11 +886,11 @@ namespace MixedRealityExtension.Core
 					var targetBehavior = (ITargetBehavior)targetContext.Behavior;
 					if (targetBehavior.Grabbable)
 					{
-						targetContext.GrabAction.ActionStateChanged += OnRigidBodyGrabbed;
+						targetContext.GrabAction.ActionStateChanged += OnRigidBody3DGrabbed;
 					}
 				}
 			}
-			return RigidBody;
+			return RigidBody3D;
 		}
 */
 		/// <summary>
@@ -927,17 +934,17 @@ namespace MixedRealityExtension.Core
 			switch (colliderType)
 			{
 				case ColliderType.Box:
-					var boxCollider = new CollisionShape() { Shape = new BoxShape() };
+					var boxCollider = new CollisionShape3D() { Shape = new BoxShape3D() };
 					colliderGeometry.Patch(App, boxCollider);
 					godotCollisionShape = boxCollider;
 					break;
 				case ColliderType.Sphere:
-					var sphereCollider =  new CollisionShape() { Shape = new SphereShape() };
+					var sphereCollider =  new CollisionShape3D() { Shape = new SphereShape3D() };
 					colliderGeometry.Patch(App, sphereCollider);
 					godotCollisionShape = sphereCollider;
 					break;
 				case ColliderType.Capsule:
-					var capsuleCollider =  new CollisionShape() { Shape = new CapsuleShape() };
+					var capsuleCollider =  new CollisionShape3D() { Shape = new CapsuleShape3D() };
 					colliderGeometry.Patch(App, capsuleCollider);
 					godotCollisionShape = capsuleCollider;
 					break;
@@ -1037,19 +1044,19 @@ namespace MixedRealityExtension.Core
 			{
 				if (ownerOrNull.HasValue)
 				{
-					if (RigidBody != null)
+					if (RigidBody3D != null)
 					{
 						if (!_isExclusiveToUser)
 						{
 							if (Owner.HasValue) // test the old value
 							{
 								// if body is already registered to physics bridge, just set the new owner
-								App.PhysicsBridge.setRigidBodyOwnership(Id, ownerOrNull.Value, RigidBody.IsKinematic);
+								App.PhysicsBridge.setRigidBody3DOwnership(Id, ownerOrNull.Value, RigidBody3D.IsKinematic);
 							}
 							else
 							{
 								// if this is first time owner is set, add body to physics bridge
-								App.PhysicsBridge.addRigidBody(Id, _rigidbody, ownerOrNull.Value, RigidBody.IsKinematic);
+								App.PhysicsBridge.addRigidBody3D(Id, _rigidbody, ownerOrNull.Value, RigidBody3D.IsKinematic);
 							}
 
 							Owner = ownerOrNull;
@@ -1184,7 +1191,7 @@ namespace MixedRealityExtension.Core
 		{
 			if (transformPatch != null)
 			{
-				if (RigidBody == null)
+				if (RigidBody3D == null)
 				{
 					// Apply local first.
 					if (transformPatch.Local != null)
@@ -1206,21 +1213,21 @@ namespace MixedRealityExtension.Core
 					// others will get update through PhysicsBridge.
 					if (!App.UsePhysicsBridge || IsSimulatedByLocalUser)
 					{
-						PatchTransformWithRigidBody(transformPatch);
+						PatchTransformWithRigidBody3D(transformPatch);
 					}
 					*/
 				}
 			}
 		}
 /*FIXME
-		private void PatchTransformWithRigidBody(ActorTransformPatch transformPatch)
+		private void PatchTransformWithRigidBody3D(ActorTransformPatch transformPatch)
 		{
 			if (_rigidbody == null)
 			{
 				return;
 			}
 
-			RigidBody.RigidBodyTransformUpdate transformUpdate = new RigidBody.RigidBodyTransformUpdate();
+			RigidBody3D.RigidBody3DTransformUpdate transformUpdate = new RigidBody3D.RigidBody3DTransformUpdate();
 			if (transformPatch.Local != null)
 			{
 				// In case of rigid body:
@@ -1267,7 +1274,7 @@ namespace MixedRealityExtension.Core
 			}
 
 			// Queue update to happen in the fixed update
-			RigidBody.SynchronizeEngine(transformUpdate);
+			RigidBody3D.SynchronizeEngine(transformUpdate);
 		}
 
 		private void CorrectAppTransform(MWTransform transform)
@@ -1277,7 +1284,7 @@ namespace MixedRealityExtension.Core
 				return;
 			}
 
-			if (RigidBody == null)
+			if (RigidBody3D == null)
 			{
 				// We need to lerp at the transform level with the transform lerper.
 				if (_transformLerper == null)
@@ -1355,7 +1362,7 @@ namespace MixedRealityExtension.Core
 						_rbTransformPatch.App.Rotation = null;
 					}
 
-					PatchTransformWithRigidBody(_rbTransformPatch);
+					PatchTransformWithRigidBody3D(_rbTransformPatch);
 				}
 			}
 		}
@@ -1372,7 +1379,7 @@ namespace MixedRealityExtension.Core
 			}
 		}
 
-		private void PatchRigidBody(RigidBodyPatch rigidBodyPatch)
+		private void PatchRigidBody3D(RigidBody3DPatch rigidBodyPatch)
 		{
 			if (rigidBodyPatch != null)
 			{
@@ -1380,20 +1387,20 @@ namespace MixedRealityExtension.Core
 
 				bool wasKinematic;
 
-				if (RigidBody == null)
+				if (RigidBody3D == null)
 				{
-					AddRigidBody();
+					AddRigidBody3D();
 
-					wasKinematic = RigidBody.IsKinematic;
+					wasKinematic = RigidBody3D.IsKinematic;
 
-					RigidBody.ApplyPatch(rigidBodyPatch, patchVelocities);
+					RigidBody3D.ApplyPatch(rigidBodyPatch, patchVelocities);
 				}
 				else
 				{
-					wasKinematic = RigidBody.IsKinematic;
+					wasKinematic = RigidBody3D.IsKinematic;
 
 					// Queue update to happen in the fixed update
-					RigidBody.SynchronizeEngine(rigidBodyPatch, patchVelocities);
+					RigidBody3D.SynchronizeEngine(rigidBodyPatch, patchVelocities);
 				}
 
 				if (App.UsePhysicsBridge)
@@ -1523,7 +1530,7 @@ namespace MixedRealityExtension.Core
 
 				if (behaviorComponent.Context is TargetBehaviorContext targetContext)
 				{
-					if (RigidBody != null)
+					if (RigidBody3D != null)
 					{
 						// for rigid body we need callbacks for the physics bridge
 						var targetBehavior = (ITargetBehavior)targetContext.Behavior;
@@ -1534,11 +1541,11 @@ namespace MixedRealityExtension.Core
 						{
 							if (grabbable.Value)
 							{
-								targetContext.GrabAction.ActionStateChanged += OnRigidBodyGrabbed;
+								targetContext.GrabAction.ActionStateChanged += OnRigidBody3DGrabbed;
 							}
 							else
 							{
-								targetContext.GrabAction.ActionStateChanged -= OnRigidBodyGrabbed;
+								targetContext.GrabAction.ActionStateChanged -= OnRigidBody3DGrabbed;
 							}
 						}
 					}
@@ -1578,20 +1585,20 @@ namespace MixedRealityExtension.Core
 			actorPatch.Transform = transformPatch.IsPatched() ? transformPatch : null;
 		}
 
-		private void GenerateRigidBodyPatch(ActorPatch actorPatch, bool addVelocities)
+		private void GenerateRigidBody3DPatch(ActorPatch actorPatch, bool addVelocities)
 		{
-			if (_rigidbody != null && RigidBody != null)
+			if (_rigidbody != null && RigidBody3D != null)
 			{
-				// convert to a RigidBody and build a patch from the old one to this one.
-				var rigidBodyPatch = PatchingUtilMethods.GeneratePatch(RigidBody, _rigidbody,
+				// convert to a RigidBody3D and build a patch from the old one to this one.
+				var rigidBodyPatch = PatchingUtilMethods.GeneratePatch(RigidBody3D, _rigidbody,
 					App.SceneRoot.transform, addVelocities);
 
 				if (rigidBodyPatch != null && rigidBodyPatch.IsPatched())
 				{
-					actorPatch.RigidBody = rigidBodyPatch;
+					actorPatch.RigidBody3D = rigidBodyPatch;
 				}
 
-				RigidBody.Update(_rigidbody);
+				RigidBody3D.Update(_rigidbody);
 			}
 		}
 */
@@ -1611,17 +1618,17 @@ namespace MixedRealityExtension.Core
 			if (behaviorComponent != null && behaviorComponent.Context is TargetBehaviorContext targetContext)
 			{
 				var targetBehavior = (ITargetBehavior)targetContext.Behavior;
-				if (RigidBody != null && Grabbable)
+				if (RigidBody3D != null && Grabbable)
 				{
-					targetContext.GrabAction.ActionStateChanged -= OnRigidBodyGrabbed;
+					targetContext.GrabAction.ActionStateChanged -= OnRigidBody3DGrabbed;
 				}
 			}
 
 			if (App.UsePhysicsBridge)
 			{
-				if (RigidBody != null)
+				if (RigidBody3D != null)
 				{
-					App.PhysicsBridge.removeRigidBody(Id);
+					App.PhysicsBridge.removeRigidBody3D(Id);
 				}
 			}
 */
@@ -1643,7 +1650,7 @@ namespace MixedRealityExtension.Core
 
 			// If the actor has a rigid body then always sync the transform and the rigid body.
 			// but not the velocities (due to bandwidth), sync only when there is an explicit subscription for the velocities
-			if (RigidBody != null)
+			if (RigidBody3D != null)
 			{
 				subscriptions |= ActorComponentType.Transform;
 				subscriptions |= ActorComponentType.Rigidbody;
@@ -1663,10 +1670,10 @@ namespace MixedRealityExtension.Core
 			{
 				return
 					((App.OperatingModel == OperatingModel.ServerAuthoritative) ||
-					(RigidBody == null &&
+					(RigidBody3D == null &&
 						((App.IsAuthoritativePeer ||
 						inOwnedAttachmentHierarchy) && !IsGrabbed)) ||
-					(RigidBody != null &&
+					(RigidBody3D != null &&
 						IsSimulatedByLocalUser));
 			}
 
@@ -1692,12 +1699,12 @@ namespace MixedRealityExtension.Core
 			// Override the previous rules if this actor is grabbed by the local user or is in an attachment
 			// hierarchy owned by the local user.
 			if (App.OperatingModel == OperatingModel.ServerAuthoritative ||
-				(RigidBody == null &&
+				(RigidBody3D == null &&
 					(App.IsAuthoritativePeer ||
 					IsGrabbed ||
 					_grabbedLastSync ||
 					inOwnedAttachmentHierarchy)) ||
-				(RigidBody != null &&
+				(RigidBody3D != null &&
 					(IsSimulatedByLocalUser || IsGrabbed ||
 					_grabbedLastSync )))
 			{
@@ -1733,10 +1740,10 @@ namespace MixedRealityExtension.Core
 			onCompleteCallback?.Invoke();
 		}
 
-		[CommandHandler(typeof(RigidBodyCommands))]
-		private void OnRigidBodyCommands(RigidBodyCommands payload, Action onCompleteCallback)
+		[CommandHandler(typeof(RigidBody3DCommands))]
+		private void OnRigidBody3DCommands(RigidBody3DCommands payload, Action onCompleteCallback)
 		{
-			ExecuteRigidBodyCommands(payload, onCompleteCallback);
+			ExecuteRigidBody3DCommands(payload, onCompleteCallback);
 		}
 /*FIXME
 		[CommandHandler(typeof(CreateAnimation))]
@@ -1970,14 +1977,14 @@ namespace MixedRealityExtension.Core
 		[CommandHandler(typeof(RBMovePosition))]
 		private void OnRBMovePosition(RBMovePosition payload, Action onCompleteCallback)
 		{
-			RigidBody?.RigidBodyMovePosition(new MWVector3().ApplyPatch(payload.Position));
+			RigidBody3D?.RigidBody3DMovePosition(new MWVector3().ApplyPatch(payload.Position));
 			onCompleteCallback?.Invoke();
 		}
 
 		[CommandHandler(typeof(RBMoveRotation))]
 		private void OnRBMoveRotation(RBMoveRotation payload, Action onCompleteCallback)
 		{
-			RigidBody?.RigidBodyMoveRotation(new MWQuaternion().ApplyPatch(payload.Rotation));
+			RigidBody3D?.RigidBody3DMoveRotation(new MWQuaternion().ApplyPatch(payload.Rotation));
 			onCompleteCallback?.Invoke();
 		}
 
@@ -1987,7 +1994,7 @@ namespace MixedRealityExtension.Core
 			bool isOwner = Owner.HasValue ? Owner.Value == App.LocalUser.Id : CanSync();
 			if (isOwner)
 			{
-				RigidBody?.RigidBodyAddForce(new MWVector3().ApplyPatch(payload.Force));
+				RigidBody3D?.RigidBody3DAddForce(new MWVector3().ApplyPatch(payload.Force));
 			}
 
 			onCompleteCallback?.Invoke();
@@ -1998,21 +2005,21 @@ namespace MixedRealityExtension.Core
 		{
 			var force = new MWVector3().ApplyPatch(payload.Force);
 			var position = new MWVector3().ApplyPatch(payload.Position);
-			RigidBody?.RigidBodyAddForceAtPosition(force, position);
+			RigidBody3D?.RigidBody3DAddForceAtPosition(force, position);
 			onCompleteCallback?.Invoke();
 		}
 
 		[CommandHandler(typeof(RBAddTorque))]
 		private void OnRBAddTorque(RBAddTorque payload, Action onCompleteCallback)
 		{
-			RigidBody?.RigidBodyAddTorque(new MWVector3().ApplyPatch(payload.Torque));
+			RigidBody3D?.RigidBody3DAddTorque(new MWVector3().ApplyPatch(payload.Torque));
 			onCompleteCallback?.Invoke();
 		}
 
 		[CommandHandler(typeof(RBAddRelativeTorque))]
 		private void OnRBAddRelativeTorque(RBAddRelativeTorque payload, Action onCompleteCallback)
 		{
-			RigidBody?.RigidBodyAddRelativeTorque(new MWVector3().ApplyPatch(payload.RelativeTorque));
+			RigidBody3D?.RigidBody3DAddRelativeTorque(new MWVector3().ApplyPatch(payload.RelativeTorque));
 			onCompleteCallback?.Invoke();
 		}
 

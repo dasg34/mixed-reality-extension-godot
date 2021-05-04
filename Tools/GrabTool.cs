@@ -29,7 +29,7 @@ namespace Assets.Scripts.Tools
 
 	public class GrabTool: IDisposable
 	{
-		private Spatial _manipulator;
+		private Node3D _manipulator;
 		private Node _previousParent;
 		private Vector3 _manipulatorPosInToolSpace;
 		private Vector3 _manipulatorupInToolSpace;
@@ -38,11 +38,11 @@ namespace Assets.Scripts.Tools
 
 		public bool GrabActive => CurrentGrabbedTarget != null;
 
-		public Spatial CurrentGrabbedTarget { get; private set; }
+		public Node3D CurrentGrabbedTarget { get; private set; }
 
 		public EventHandler<GrabStateChangedArgs> GrabStateChanged { get; set; }
 
-		public void Update(InputSource inputSource, Spatial target)
+		public void Update(InputSource inputSource, Node3D target)
 		{
 			if (target == null)
 			{
@@ -89,7 +89,7 @@ namespace Assets.Scripts.Tools
 			}
 		}
 
-		private void StartGrab(InputSource inputSource, Spatial target)
+		private void StartGrab(InputSource inputSource, Node3D target)
 		{
 			if (GrabActive ||target == null)
 			{
@@ -102,7 +102,7 @@ namespace Assets.Scripts.Tools
 			var targetTransform = CurrentGrabbedTarget.GlobalTransform;
 			var inputTransform = _currentInputSource.GlobalTransform;
 
-			_manipulator = new Spatial() { Name = "manipulator" };
+			_manipulator = new Node3D() { Name = "manipulator" };
 			//_manipulator.parent = null;
 			_manipulator.GlobalTransform = targetTransform;
 

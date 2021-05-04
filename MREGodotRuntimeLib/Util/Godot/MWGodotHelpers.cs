@@ -8,7 +8,7 @@ using Godot;
 
 using MRECollisionDetectionMode = MixedRealityExtension.Core.Interfaces.CollisionDetectionMode;
 using MRELightType = MixedRealityExtension.Core.Interfaces.LightType;
-using GodotLightType = Godot.VisualServer.LightType;
+using GodotLightType = Godot.RenderingServer.LightType;
 //using UnityCollisionDetectionMode = UnityEngine.CollisionDetectionMode;
 
 namespace MixedRealityExtension.Util.GodotHelper
@@ -76,7 +76,7 @@ namespace MixedRealityExtension.Util.GodotHelper
 			return _this;
 		}
 */
-		public static GodotLightType GetPatchApplied(this VisualServer.LightType _this, MRELightType value)
+		public static GodotLightType GetPatchApplied(this RenderingServer.LightType _this, MRELightType value)
 		{
 			var lightType = (GodotLightType)Enum.Parse(typeof(GodotLightType), value.ToString());
 			if (!_this.Equals(lightType))

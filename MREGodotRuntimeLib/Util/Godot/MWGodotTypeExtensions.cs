@@ -73,7 +73,7 @@ namespace MixedRealityExtension.Util.GodotHelper
 			};
 		}
 
-		public static void ToLocalTransform(this MWScaledTransform _this, Spatial spatial)
+		public static void ToLocalTransform(this MWScaledTransform _this, Node3D spatial)
 		{
 			if (_this.Position == null)
 			{
@@ -95,7 +95,7 @@ namespace MixedRealityExtension.Util.GodotHelper
 			_this.Scale.FromGodotVector3(spatial.Scale);
 		}
 
-		public static void ToAppTransform(this MWTransform _this, Spatial transform, Spatial appRoot)
+		public static void ToAppTransform(this MWTransform _this, Node3D transform, Node3D appRoot)
 		{
 			if (_this.Position == null)
 			{
@@ -112,7 +112,7 @@ namespace MixedRealityExtension.Util.GodotHelper
 			//_this.Rotation.FromGodotQuaternion(Quaternion.Inverse(appRoot.rotation) * transform.rotation);
 		}
 
-		public static MWVector3 ToLocalMWVector3(this MWVector3 _this, Vector3 point, Spatial objectRoot)
+		public static MWVector3 ToLocalMWVector3(this MWVector3 _this, Vector3 point, Node3D objectRoot)
 		{
 			_this.FromGodotVector3(objectRoot.ToGlobal(point));
 			return _this;

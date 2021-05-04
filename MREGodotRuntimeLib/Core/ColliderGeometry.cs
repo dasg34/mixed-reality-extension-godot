@@ -8,7 +8,7 @@ using MixedRealityExtension.Util.GodotHelper;
 using System;
 using Godot;
 
-using GodotCollisionShape = Godot.CollisionShape;
+using GodotCollisionShape = Godot.CollisionShape3D;
 
 namespace MixedRealityExtension.Core
 {
@@ -45,7 +45,7 @@ namespace MixedRealityExtension.Core
 
 		internal override void Patch(MixedRealityExtensionApp app, GodotCollisionShape collider)
 		{
-			if (collider.Shape is SphereShape sphereCollider)
+			if (collider.Shape is SphereShape3D sphereCollider)
 			{
 				if (Center != null)
 				{
@@ -84,7 +84,7 @@ namespace MixedRealityExtension.Core
 
 		internal override void Patch(MixedRealityExtensionApp app, GodotCollisionShape collider)
 		{
-			if (collider.Shape is BoxShape boxShape)
+			if (collider.Shape is BoxShape3D boxShape)
 			{
 				if (Center != null)
 				{
@@ -101,7 +101,7 @@ namespace MixedRealityExtension.Core
 					newSize.x = Size.X;
 					newSize.y = Size.Y;
 					newSize.z = Size.Z;
-					boxShape.Extents = newSize;
+					boxShape.Size = newSize;
 				}
 			}
 		}
@@ -177,7 +177,7 @@ namespace MixedRealityExtension.Core
 
 		internal override void Patch(MixedRealityExtensionApp app, GodotCollisionShape collider)
 		{
-			if (collider.Shape is CapsuleShape capsuleShape)
+			if (collider.Shape is CapsuleShape3D capsuleShape)
 			{
 				if (Center != null)
 				{

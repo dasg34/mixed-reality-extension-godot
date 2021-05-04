@@ -15,7 +15,7 @@ namespace MixedRealityExtension.Assets
 	/// <summary>
 	/// Default in-memory implementation of the asset cache interface
 	/// </summary>
-	public class AssetCache : Object, IAssetCache
+	public partial class AssetCache : Object, IAssetCache
 	{
 		protected class CacheItem
 		{

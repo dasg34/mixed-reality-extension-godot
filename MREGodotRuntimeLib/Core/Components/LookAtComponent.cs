@@ -11,9 +11,9 @@ namespace MixedRealityExtension.Core.Components
 	/// <summary>
 	/// Unity Behaviour to face toward a given target object
 	/// </summary>
-	internal class LookAtComponent : ActorComponentBase
+	internal partial class LookAtComponent : ActorComponentBase
 	{
-		private Spatial _targetObject;
+		private Node3D _targetObject;
 		private LookAtMode _lookAtMode;
 		private bool _backward;
 
@@ -24,7 +24,7 @@ namespace MixedRealityExtension.Core.Components
 				IActor targetActor = AttachedActor.App.FindActor(patch.ActorId.Value);
 				if (targetActor != null)
 				{
-					_targetObject = targetActor.node as Spatial;
+					_targetObject = targetActor.node as Node3D;
 				}
 				else
 				{

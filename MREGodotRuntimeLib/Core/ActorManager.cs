@@ -25,41 +25,41 @@ namespace MixedRealityExtension.Core
 
 		internal Dictionary<Guid, Actor>.ValueCollection Actors => _actorMapping.Values;
 
-		public delegate void RigidBodyAddedHandler(Guid id, Godot.RigidBody rigidbody, Guid? owner);
-		internal event RigidBodyAddedHandler RigidBodyAdded;
+		public delegate void RigidBody3DAddedHandler(Guid id, Godot.RigidBody3D rigidbody, Guid? owner);
+		internal event RigidBody3DAddedHandler RigidBody3DAdded;
 
-		public delegate void RigidBodyRemovedHandler(Guid id);
-		internal event RigidBodyRemovedHandler RigidBodyRemoved;
+		public delegate void RigidBody3DRemovedHandler(Guid id);
+		internal event RigidBody3DRemovedHandler RigidBody3DRemoved;
 
-		public delegate void RigidBodyKinematicsChangedHandler(Guid id, bool isKinematic);
-		internal event RigidBodyKinematicsChangedHandler RigidBodyKinematicsChanged;
+		public delegate void RigidBody3DKinematicsChangedHandler(Guid id, bool isKinematic);
+		internal event RigidBody3DKinematicsChangedHandler RigidBody3DKinematicsChanged;
 
-		public delegate void RigidBodyOwnerChangedHandler(Guid id, Guid? owner);
-		public event RigidBodyOwnerChangedHandler RigidBodyOwnerChanged;
+		public delegate void RigidBody3DOwnerChangedHandler(Guid id, Guid? owner);
+		public event RigidBody3DOwnerChangedHandler RigidBody3DOwnerChanged;
 
 		internal ActorManager(MixedRealityExtensionApp app)
 		{
 			_app = app;
 		}
 
-		private void OnRigidBodyAdded(Guid id, Godot.RigidBody rigidbody, Guid? owner)
+		private void OnRigidBody3DAdded(Guid id, Godot.RigidBody3D rigidbody, Guid? owner)
 		{
-			RigidBodyAdded?.Invoke(id, rigidbody, owner);
+			RigidBody3DAdded?.Invoke(id, rigidbody, owner);
 		}
 
-		private void OnRigidBodyRemoved(Guid id)
+		private void OnRigidBody3DRemoved(Guid id)
 		{
-			RigidBodyRemoved?.Invoke(id);
+			RigidBody3DRemoved?.Invoke(id);
 		}
 
-		private void OnRigidBodyKinematicsChanged(Guid id, bool isKinematic)
+		private void OnRigidBody3DKinematicsChanged(Guid id, bool isKinematic)
 		{
-			RigidBodyKinematicsChanged?.Invoke(id, isKinematic);
+			RigidBody3DKinematicsChanged?.Invoke(id, isKinematic);
 		}
 
-		private void OnRigidBodyOwnerChanged(Guid id, Guid? owner)
+		private void OnRigidBody3DOwnerChanged(Guid id, Guid? owner)
 		{
-			RigidBodyOwnerChanged?.Invoke(id, owner);
+			RigidBody3DOwnerChanged?.Invoke(id, owner);
 		}
 
 		internal Actor AddActor(Guid id, Actor actor)
@@ -212,8 +212,8 @@ namespace MixedRealityExtension.Core
 			onCompleteCallback?.Invoke();
 		}
 
-		[CommandHandler(typeof(RigidBodyCommands))]
-		private void OnRigidBodyCommands(RigidBodyCommands payload, Action onCompleteCallback)
+		[CommandHandler(typeof(RigidBody3DCommands))]
+		private void OnRigidBody3DCommands(RigidBody3DCommands payload, Action onCompleteCallback)
 		{
 			ProcessActorCommand(payload.ActorId, payload, onCompleteCallback);
 		}

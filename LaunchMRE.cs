@@ -8,7 +8,7 @@ public enum LaunchType
 	OnStart
 }
 
-public class LaunchMRE : Spatial
+public partial class LaunchMRE : Node3D
 {
 	[Export]
 	public LaunchType LaunchType;

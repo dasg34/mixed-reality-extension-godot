@@ -12,9 +12,11 @@ using System.Collections.Generic;
 
 namespace MixedRealityExtension.Core
 {
-	internal class User : MixedRealityExtensionObject, IUser
+	internal partial class User : MixedRealityExtensionObject, IUser
 	{
 		private IList<MixedRealityExtensionApp> _joinedApps = new List<MixedRealityExtensionApp>();
+
+		public override string Name => HostAppUser.Name;
 
 		public IHostAppUser HostAppUser { get; private set; }
 
@@ -25,7 +27,6 @@ namespace MixedRealityExtension.Core
 		internal void Initialize(IHostAppUser hostAppUser, Guid userId, Guid ephemeralUserId, MixedRealityExtensionApp app)
 		{
 			HostAppUser = hostAppUser;
-			Name = HostAppUser.Name;
 			base.Initialize(userId, app);
 			EphemeralUserId = ephemeralUserId;
 		}

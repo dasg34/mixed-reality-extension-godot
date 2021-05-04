@@ -382,18 +382,18 @@ namespace MixedRealityExtension.Assets
 			_app.AssetManager.OnSet(def.Id, asset =>
 			{
 
-				if (def.Material != null && asset.Asset != null && asset.Asset is Godot.SpatialMaterial mat)
+				if (def.Material != null && asset.Asset != null && asset.Asset is Godot.StandardMaterial3D mat)
 				{
 					// make sure material reference is write-safe
 					// Note: It's safe to assume existence because we're inside the OnSet callback
-					mat = _app.AssetManager.GetById(def.Id, writeSafe: true).Value.Asset as Godot.SpatialMaterial;
+					mat = _app.AssetManager.GetById(def.Id, writeSafe: true).Value.Asset as Godot.StandardMaterial3D;
 
 					MREAPI.AppsAPI.MaterialPatcher.ApplyMaterialPatch(_app, mat, def.Material.Value);
 				}
-				else if (def.Texture != null && asset.Asset != null && asset.Asset is Godot.Texture tex)
+				else if (def.Texture != null && asset.Asset != null && asset.Asset is Godot.ImageTexture3D tex)
 				{
 					var texdef = def.Texture.Value;
-
+/*FIXME
 					// make sure texture reference actually needs to be updated
 					if (texdef.Flags.HasValue && texdef.Flags.Value != tex.Flags)
 					{
@@ -405,6 +405,7 @@ namespace MixedRealityExtension.Assets
 							tex.Flags = texdef.Flags.Value;
 					}
 					// otherwise, the shared texture is in exactly the state we want, so use it
+*/
 				}
 				else if (def.Sound != null)
 				{
@@ -453,13 +454,13 @@ namespace MixedRealityExtension.Assets
 				var texUri = new Uri(_app.ServerAssetUri, def.Texture.Value.Uri);
 				source = new AssetSource(AssetContainerType.None, texUri.AbsoluteUri);
 				var result = await AssetFetcher<Godot.Texture>.LoadTask(_owner, texUri);
-
+/*FIXME
 				// this is a newly loaded texture, so we decide initial settings for the shared asset
 				if (result.ReturnCode == 200)
 				{
 					result.Asset.Flags = def.Texture.Value.Flags ?? (uint)Godot.Texture.FlagsEnum.Default;
 				}
-
+*/
 				source.Version = result.ETag;
 				unityAsset = result.Asset;
 				if (result.FailureMessage != null)
@@ -613,7 +614,7 @@ namespace MixedRealityExtension.Assets
 				};
 			}
 			else */
-			if (unityAsset is Godot.SpatialMaterial mat)
+			if (unityAsset is Godot.StandardMaterial3D mat)
 			{
 				return new Asset()
 				{
@@ -621,15 +622,16 @@ namespace MixedRealityExtension.Assets
 					Material = MREAPI.AppsAPI.MaterialPatcher.GeneratePatch(_app, mat)
 				};
 			}
-			else if (unityAsset is Godot.Texture tex)
+			else if (unityAsset is Godot.Texture3D tex)
 			{
 				return new Asset()
 				{
 					Id = id,
 					Texture = new MWTexture()
 					{
-						Resolution = new Vector2Patch(tex.GetSize()),
-						Flags = tex.Flags,
+						Resolution = new Vector2Patch(new Vector2(tex.GetWidth(), tex.GetHeight())),
+						//FIXME
+						//Flags = tex.Flags,
 					}
 				};
 			}

@@ -36,7 +36,7 @@ public class MRELogger : IMRELogger
 	}
 }
 
-public class MREComponent : Spatial
+public partial class MREComponent : Node3D
 {
 	public delegate void AppEventHandler(MREComponent app);
 
@@ -64,7 +64,7 @@ public class MREComponent : Spatial
 	//[SerializeField]
 	internal Permissions GrantedPermissions;
 
-	public Spatial SceneRoot;
+	public Node3D SceneRoot;
 
 	public Node PlaceholderObject;
 
@@ -86,7 +86,7 @@ public class MREComponent : Spatial
 
 	private static bool _apiInitialized = false;
 
-	private SpatialMaterial DefaultPrimMaterial = new SpatialMaterial();
+	private StandardMaterial3D DefaultPrimMaterial = new StandardMaterial3D();
 
 	private Dictionary<Guid, HostAppUser> hostAppUsers = new Dictionary<Guid, HostAppUser>();
 
@@ -239,7 +239,7 @@ public class MREComponent : Spatial
 	{
 		if (PlaceholderObject != null)
 		{
-			PlaceholderObject.PauseMode = PauseModeEnum.Stop;
+			PlaceholderObject.SetProcess(false);
 		}
 
 		GD.Print("Connecting to MRE App.");
@@ -285,7 +285,7 @@ public class MREComponent : Spatial
 
 		if (PlaceholderObject != null)
 		{
-			PlaceholderObject.PauseMode = PauseModeEnum.Process;
+			PlaceholderObject.SetProcess(true);
 		}
 	}
 	

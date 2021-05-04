@@ -38,7 +38,7 @@ namespace MixedRealityExtension.API
 		/// <param name="logger">The logger to be used by the MRE SDK.</param>
 		public static void InitializeAPI(
 			// required properties
-			SpatialMaterial defaultMaterial,
+			StandardMaterial3D defaultMaterial,
 			//ILayerApplicator layerApplicator,
 			//IAssetCache assetCache,
 			//ITextFactory textFactory,
@@ -103,7 +103,7 @@ namespace MixedRealityExtension.API
 		/// <summary>
 		/// The material template used for all SDK-spawned materials.
 		/// </summary>
-		public SpatialMaterial DefaultMaterial { get; internal set; }
+		public StandardMaterial3D DefaultMaterial { get; internal set; }
 
 		/// <summary>
 		/// The class responsible for assigning layers to colliders.

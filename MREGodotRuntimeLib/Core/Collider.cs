@@ -15,7 +15,7 @@ using Godot;
 
 using MREContactPoint = MixedRealityExtension.Core.Collision.ContactPoint;
 
-using GodotCollisionObject = Godot.CollisionObject;
+using GodotCollisionObject = Godot.CollisionObject3D;
 //using UnityCollision = UnityEngine.Collision;
 
 namespace MixedRealityExtension.Core
@@ -56,9 +56,9 @@ namespace MixedRealityExtension.Core
 		Mesh
 	}
 
-	internal class Collider : Area, ICollider
+	internal partial class Collider : Area3D, ICollider
 	{
-		private CollisionShape _collider;
+		private CollisionShape3D _collider;
 		private Actor _ownerActor;
 		private ColliderEventType _colliderEventSubscriptions = ColliderEventType.None;
 
@@ -83,7 +83,7 @@ namespace MixedRealityExtension.Core
 		/// <inheritdoc />
 		public ColliderType Shape { get; private set; }
 
-		internal void Initialize(CollisionShape collisionShape, ColliderType? shape = null)
+		internal void Initialize(CollisionShape3D collisionShape, ColliderType? shape = null)
 		{
 			_ownerActor = collisionShape.GetParent().GetParent<Actor>()
 				?? throw new Exception("An MRE collider must be associated with a Unity game object that is an MRE actor.");
@@ -93,15 +93,15 @@ namespace MixedRealityExtension.Core
 			{
 				Shape = shape.Value;
 			}
-			else if (collisionShape.Shape is SphereShape)
+			else if (collisionShape.Shape is SphereShape3D)
 			{
 				Shape = ColliderType.Sphere;
 			}
-			else if (collisionShape.Shape is BoxShape)
+			else if (collisionShape.Shape is BoxShape3D)
 			{
 				Shape = ColliderType.Box;
 			}
-			else if (collisionShape.Shape is CapsuleShape)
+			else if (collisionShape.Shape is CapsuleShape3D)
 			{
 				Shape = ColliderType.Capsule;
 			}
@@ -151,7 +151,7 @@ namespace MixedRealityExtension.Core
 			{
 				colliderGeo = new AutoColliderGeometry();
 			}
-			else if (_collider.Shape is SphereShape sphereCollider)
+			else if (_collider.Shape is SphereShape3D sphereCollider)
 			{
 				colliderGeo = new SphereColliderGeometry()
 				{
@@ -159,15 +159,15 @@ namespace MixedRealityExtension.Core
 					Center = _collider.Transform.origin.CreateMWVector3()
 				};
 			}
-			else if (_collider.Shape is BoxShape boxCollider)
+			else if (_collider.Shape is BoxShape3D boxCollider)
 			{
 				colliderGeo = new BoxColliderGeometry()
 				{
-					Size = boxCollider.Extents.CreateMWVector3(),
+					Size = boxCollider.Size.CreateMWVector3(),
 					Center = _collider.Transform.origin.CreateMWVector3()
 				};
 			}
-			else if (_collider.Shape is CapsuleShape capsuleCollider)
+			else if (_collider.Shape is CapsuleShape3D capsuleCollider)
 			{
 				// The size vector describes the dimensions of the bounding box containing the collider
 				MWVector3 size;

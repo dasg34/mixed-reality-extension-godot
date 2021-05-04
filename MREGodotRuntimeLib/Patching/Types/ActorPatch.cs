@@ -48,7 +48,7 @@ namespace MixedRealityExtension.Patching.Types
 
 /* FIXME
 		[PatchProperty]
-		public RigidBodyPatch RigidBody { get; set; }
+		public RigidBody3DPatch RigidBody3D { get; set; }
 */
 		[PatchProperty]
 		public ColliderPatch Collider { get; set; }
@@ -123,7 +123,7 @@ namespace MixedRealityExtension.Patching.Types
 				&& ParentId == null
 				&& Appearance == null
 				//FIXME
-				//&& RigidBody == null
+				//&& RigidBody3D == null
 				&& Collider == null
 				&& Light == null
 				&& Text == null

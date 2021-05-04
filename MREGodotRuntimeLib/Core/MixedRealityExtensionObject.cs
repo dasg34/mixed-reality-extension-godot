@@ -10,7 +10,7 @@ using Godot;
 
 namespace MixedRealityExtension.Core
 {
-	internal abstract class MixedRealityExtensionObject : MeshInstance, IMixedRealityExtensionObject
+	internal abstract partial class MixedRealityExtensionObject : MeshInstance3D, IMixedRealityExtensionObject
 	{
 		/// <inheritdoc />
 		public Guid Id { get; private set; }
@@ -18,6 +18,9 @@ namespace MixedRealityExtension.Core
 		/// <inheritdoc />
 		public Guid AppInstanceId => App.InstanceId;
 
+		/// <inheritdoc />
+		public virtual string Name => Name;
+		
 		/// <inheritdoc />
 		public Node node => this;
 
