@@ -22,6 +22,7 @@ using System.Linq;
 using Godot;
 
 using GodotLight = Godot.Light;
+using GodotRigidBody = Godot.RigidBody;
 using GodotCollisionShape = Godot.CollisionShape;
 using MixedRealityExtension.PluginInterfaces.Behaviors;
 using MixedRealityExtension.Util;
@@ -51,7 +52,7 @@ namespace MixedRealityExtension.Core
 			return newNode;
 		}
 
-		private RigidBody _rigidbody;
+		private GodotRigidBody _rigidbody;
 		private GodotLight _light;
 		private GodotCollisionShape _collider;
 		private ColliderPatch _pendingColliderPatch;
@@ -394,16 +395,14 @@ namespace MixedRealityExtension.Core
 			PatchParent(actorPatch.ParentId);
 			PatchAppearance(actorPatch.Appearance);
 			PatchTransform(actorPatch.Transform);
+			PatchLight(actorPatch.Light);
+			PatchRigidBody(actorPatch.RigidBody);
 			PatchCollider(actorPatch.Collider);
 			PatchText(actorPatch.Text);
 			PatchAttachment(actorPatch.Attachment);
 			PatchLookAt(actorPatch.LookAt);
-			PatchLight(actorPatch.Light);
+			//PatchGrabbable(actorPatch.Grabbable);
 			PatchSubscriptions(actorPatch.Subscriptions);
-/*
-			PatchRigidBody(actorPatch.RigidBody);
-			PatchGrabbable(actorPatch.Grabbable);
-*/
 		}
 /*
 		internal void ApplyCorrection(ActorCorrection actorCorrection)
@@ -668,8 +667,7 @@ namespace MixedRealityExtension.Core
 		protected override void OnStart()
 		{
 			_light = this.GetChild<GodotLight>();
-			/*FIXME
-			//_rigidbody = gameObject.GetComponent<Rigidbody>();
+			_rigidbody = this.GetChild<GodotRigidBody>();
 		}
 
 		protected override void OnDestroyed()
@@ -743,9 +741,11 @@ namespace MixedRealityExtension.Core
 					return;
 				}
 
-				//FIXME
-				//RigidBody = RigidBody ?? new RigidBody(_rigidbody, App.SceneRoot.transform);
-				//RigidBody.Update();
+				if (!_rigidbody.ContactMonitor) _rigidbody.ContactMonitor = true;
+				if (_rigidbody.ContactsReported <= 0) _rigidbody.ContactsReported = 1;
+
+				RigidBody = RigidBody ?? new RigidBody(_rigidbody, App.SceneRoot);
+				RigidBody.Update();
 				// TODO: Send this update if actor is set to "high-frequency" updates
 				//Actor.SynchronizeApp();
 			}
@@ -900,7 +900,7 @@ namespace MixedRealityExtension.Core
 			}
 			return Light;
 		}
-/*
+
 		void OnRigidBodyGrabbed(object sender, ActionStateChangedArgs args)
 		{
 			if (App.UsePhysicsBridge)
@@ -910,7 +910,8 @@ namespace MixedRealityExtension.Core
 					if (_isExclusiveToUser)
 					{
 						// if rigid body is exclusive to user, manage rigid body directly
-						_rigidbody.isKinematic = args.NewState == ActionState.Started ? true : RigidBody.IsKinematic;
+						if (args.NewState == ActionState.Started || RigidBody.IsKinematic)
+							_rigidbody.Mode = GodotRigidBody.ModeEnum.Kinematic;
 					}
 					else
 					{
@@ -934,8 +935,12 @@ namespace MixedRealityExtension.Core
 		{
 			if (_rigidbody == null)
 			{
-				_rigidbody = gameObject.AddComponent<Rigidbody>();
-				RigidBody = new RigidBody(_rigidbody, App.SceneRoot.transform);
+				_rigidbody = new GodotRigidBody()
+				{
+					ContactMonitor = true,
+					ContactsReported = 1
+				};
+				RigidBody = new RigidBody(_rigidbody, App.SceneRoot);
 
 				if (App.UsePhysicsBridge)
 				{
@@ -959,7 +964,7 @@ namespace MixedRealityExtension.Core
 			}
 			return RigidBody;
 		}
-*/
+
 		/// <summary>
 		/// Precondition: The mesh referred to by MeshId is loaded and available for use.
 		/// </summary>
@@ -1277,18 +1282,16 @@ namespace MixedRealityExtension.Core
 				}
 				else
 				{
-					/*FIXME
 					// We need to update transform only for the simulation owner,
 					// others will get update through PhysicsBridge.
 					if (!App.UsePhysicsBridge || IsSimulatedByLocalUser)
 					{
 						PatchTransformWithRigidBody(transformPatch);
 					}
-					*/
 				}
 			}
 		}
-/*FIXME
+
 		private void PatchTransformWithRigidBody(ActorTransformPatch transformPatch)
 		{
 			if (_rigidbody == null)
@@ -1345,7 +1348,7 @@ namespace MixedRealityExtension.Core
 			// Queue update to happen in the fixed update
 			RigidBody.SynchronizeEngine(transformUpdate);
 		}
-
+/*FIXME
 		private void CorrectAppTransform(MWTransform transform)
 		{
 			if (transform == null)
@@ -1447,7 +1450,7 @@ namespace MixedRealityExtension.Core
 				Light.SynchronizeEngine(lightPatch);
 			}
 		}
-/*FIXME
+
 		private void PatchRigidBody(RigidBodyPatch rigidBodyPatch)
 		{
 			if (rigidBodyPatch != null)
@@ -1481,7 +1484,7 @@ namespace MixedRealityExtension.Core
 				}
 			}
 		}
-*/
+
 		private void PatchText(TextPatch textPatch)
 		{
 			if (textPatch != null)
