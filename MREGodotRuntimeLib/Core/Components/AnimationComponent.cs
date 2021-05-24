@@ -18,6 +18,7 @@ namespace MixedRealityExtension.Core.Components
 {
 	internal class AnimationComponent : ActorComponentBase
 	{
+		private AnimationPlayer _animationPlayer;
 		private GodotAnimation _animation;
 
 		private class AnimationData
@@ -84,56 +85,46 @@ namespace MixedRealityExtension.Core.Components
 		{
 			var continuation = new MWContinuation(AttachedActor, null, (result) =>
 			{
-				var animation = GetOrCreateGodotAnimationComponent();
+				var animationPlayer = GetOrCreateGodotAnimationComponent();
+				var animation = new GodotAnimation();
+				animation.Loop = wrapMode.IsInterpolationLoopWrap();
 
-				animation.TrackGetInterpolationLoopWrap
-				var clip = new AnimationClip
+				var curves = new Dictionary<string, int>();
+
+				int GetOrCreateCurve(Type type, string propertyName)
 				{
-					legacy = true,
-					wrapMode = wrapMode.IsInterpolationLoopWrap(),
-				};
-
-				var curves = new Dictionary<string, CurveInfo>();
-
-				CurveInfo GetOrCreateCurve(Type type, string propertyName)
-				{
-					if (!curves.TryGetValue(propertyName, out CurveInfo info))
+					if (!curves.TryGetValue(propertyName, out int trackIndex))
 					{
-						info = new CurveInfo()
-						{
-							Curve = new AnimationCurve(),
-							Type = type
-						};
-
-						curves.Add(propertyName, info);
+						trackIndex = animation.AddTrack(GodotAnimation.TrackType.Bezier);
+						curves.Add(propertyName, trackIndex);
 					}
 
-					return info;
+					return trackIndex;
 				}
 
 				void AddFloatPatch(Type type, string propertyName, float time, float? value)
 				{
 					if (value.HasValue)
 					{
-						var curveInfo = GetOrCreateCurve(type, propertyName);
-						var keyframe = new UnityEngine.Keyframe(time, value.Value, 0, 0, 0, 0);
-						curveInfo.Curve.AddKey(keyframe);
+						var trackIndex = GetOrCreateCurve(type, propertyName);
+						animation.TrackSetPath(trackIndex, propertyName);
+						animation.BezierTrackInsertKey(trackIndex, time, value.Value);
 					}
 				}
 
 				void AddVector3Patch(Type type, string propertyName, float time, Vector3Patch value)
 				{
-					AddFloatPatch(type, String.Format("{0}.x", propertyName), time, value?.X);
-					AddFloatPatch(type, String.Format("{0}.y", propertyName), time, value?.Y);
-					AddFloatPatch(type, String.Format("{0}.z", propertyName), time, value?.Z);
+					AddFloatPatch(type, String.Format("{0}:x", propertyName), time, value?.X);
+					AddFloatPatch(type, String.Format("{0}:y", propertyName), time, value?.Y);
+					AddFloatPatch(type, String.Format("{0}:z", propertyName), time, value?.Z);
 				}
 
 				void AddQuaternionPatch(Type type, string propertyName, float time, QuaternionPatch value)
 				{
-					AddFloatPatch(type, String.Format("{0}.x", propertyName), time, value?.X);
-					AddFloatPatch(type, String.Format("{0}.y", propertyName), time, value?.Y);
-					AddFloatPatch(type, String.Format("{0}.z", propertyName), time, value?.Z);
-					AddFloatPatch(type, String.Format("{0}.w", propertyName), time, value?.W);
+					AddFloatPatch(type, String.Format("{0}:x", propertyName), time, value?.X);
+					AddFloatPatch(type, String.Format("{0}:y", propertyName), time, value?.Y);
+					AddFloatPatch(type, String.Format("{0}:z", propertyName), time, value?.Z);
+					AddFloatPatch(type, String.Format("{0}:w", propertyName), time, value?.W);
 				}
 
 				void AddTransformPatch(float time, ScaledTransformPatch value)
@@ -156,9 +147,12 @@ namespace MixedRealityExtension.Core.Components
 						if (!scale.Y.HasValue) { scale.Y = Scale.y; }
 						if (!scale.Z.HasValue) { scale.Z = Scale.z; }
 					}
-					AddVector3Patch(typeof(Transform), "m_LocalPosition", time, value?.Position);
-					AddQuaternionPatch(typeof(Transform), "m_LocalRotation", time, value?.Rotation);
-					AddVector3Patch(typeof(Transform), "m_LocalScale", time, value?.Scale);
+					AddVector3Patch(typeof(Transform), "..:translation", time, value?.Position);
+					var ratation = value?.Rotation;
+					var quat = new Quat(ratation.X.Value, ratation.Y.Value, ratation.Z.Value, ratation.W.Value);
+					var vector3 = quat.GetEuler();
+					AddVector3Patch(typeof(Transform), "..:rotation_degrees", time, new Vector3Patch(vector3));
+					AddVector3Patch(typeof(Transform), "..:scale", time, value?.Scale);
 				}
 
 				void AddActorPatch(float time, ActorPatch value)
@@ -174,11 +168,6 @@ namespace MixedRealityExtension.Core.Components
 				foreach (var keyframe in keyframes)
 				{
 					AddKeyframe(keyframe);
-				}
-
-				foreach (var kv in curves)
-				{
-					clip.SetCurve("", kv.Value.Type, kv.Key, kv.Value.Curve);
 				}
 
 				_animationData[animationName] = new AnimationData()
@@ -198,8 +187,7 @@ namespace MixedRealityExtension.Core.Components
 					initialEnabled = initialState.Enabled ?? initialEnabled;
 				}
 
-
-				animation.AddClip(clip, animationName);
+				animationPlayer.AddAnimation(animationName, animation);
 
 				SetAnimationState(animationName, initialTime, initialSpeed, initialEnabled);
 
@@ -431,10 +419,11 @@ namespace MixedRealityExtension.Core.Components
 
 		internal void SetAnimationState(string animationName, float? time, float? speed, bool? enabled)
 		{
-			var animation = GetOrCreateGodotAnimationComponent();
-			if (animation != null)
+			var animationPlayer = GetOrCreateGodotAnimationComponent();
+			if (animationPlayer != null)
 			{
-				if (animation[animationName] != null)
+				var animation = animationPlayer.GetAnimation(animationName);
+				if (animation != null)
 				{
 					// Create the animationData if it doesn't already exist. This is the case for gltf animations.
 					if (!GetAnimationData(animationName, out AnimationData animationData))
@@ -444,11 +433,11 @@ namespace MixedRealityExtension.Core.Components
 
 					if (speed.HasValue)
 					{
-						animation[animationName].speed = speed.Value;
+						animationPlayer.PlaybackSpeed = speed.Value;
 					}
 					if (time.HasValue)
 					{
-						SetAnimationTime(animation[animationName], time.Value);
+						SetAnimationTime(animationPlayer, time.Value);
 					}
 					if (enabled.HasValue)
 					{
@@ -543,47 +532,34 @@ namespace MixedRealityExtension.Core.Components
 			AttachedActor.App.EventManager.QueueEvent(new SetAnimationStateEvent(AttachedActor.Id, animationName, animationTime, animationSpeed, animationEnabled));
 		}
 
-		private void SetAnimationTime(AnimationState animState, float animationTime)
+		private void SetAnimationTime(AnimationPlayer animationPlayer, float animationTime)
 		{
 			if (animationTime < 0)
 			{
-				animationTime = animState.length;
+				animationTime = animationPlayer.CurrentAnimationLength;
 			}
 
-			animState.time = animationTime;
+			animationPlayer.Seek(animationTime);
 		}
 
-		private GodotAnimation GetOrCreateGodotAnimationComponent()
+		private AnimationPlayer GetOrCreateGodotAnimationComponent()
 		{
-			if (_animation == null)
+			if (_animationPlayer == null)
 			{
-				_animation = this.GetChild<GodotAnimation>();
-				if (_animation == null)
+				_animationPlayer = this.GetChild<AnimationPlayer>();
+				if (_animationPlayer == null)
 				{
-					_animation = gameObject.AddComponent<GodotAnimation>();
+					_animationPlayer = new AnimationPlayer();
+					this.AddChild(_animationPlayer);
 				}
 			}
-			return _animation;
-		}
 
-		private GodotAnimation GetOrLookUpGodotAnimationComponent()
-		{
-			if (_animation == null)
-			{
-				_animation = gameObject.GetComponent<GodotAnimation>();
-			}
-			return _animation;
+			return _animationPlayer;
 		}
 
 		private GodotAnimation GetGodotAnimationComponent()
 		{
 			return _animation;
-		}
-
-		private class CurveInfo
-		{
-			public Type Type;
-			public AnimationCurve Curve;
 		}
 	}
 }
