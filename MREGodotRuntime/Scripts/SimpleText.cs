@@ -8,17 +8,19 @@ using Godot;
 
 public class SimpleText : IText
 {
-	private readonly MeshInstance textMesh;
-	private readonly Label label;
+	private readonly MeshInstance textMeshInstance;
+	private readonly QuadMesh textMesh;
+	private readonly RichTextLabel label;
 	private readonly DynamicFont dynamicFont;
 	private readonly Viewport textViewport;
 	private TextAnchorLocation anchor;
+	private float height;
 
 	/// <inheritdoc />
 	public bool Enabled
 	{
-		get { return textMesh.Visible; }
-		private set { textMesh.Visible = value; }
+		get { return textMeshInstance.Visible; }
+		private set { textMeshInstance.Visible = value; }
 	}
 
 	/// <inheritdoc />
@@ -27,6 +29,9 @@ public class SimpleText : IText
 		get { return label.Text; }
 		private set
 		{
+			if (label.Text == value)
+				return;
+
 			label.Text = value;
 			resizeContainer();
 		}
@@ -35,13 +40,13 @@ public class SimpleText : IText
 	/// <inheritdoc />
 	public float Height
 	{
-		get { return dynamicFont.Size / 200; }
+		get { return height; }
 		private set
 		{
-			int scaledValue = (int)(value * 200);
-			if (scaledValue < 1)
+			if (Mathf.IsEqualApprox(height, value))
 				return;
-			dynamicFont.Size = scaledValue;
+
+			height = value;
 			resizeContainer();
 		}
 	}
@@ -69,6 +74,9 @@ public class SimpleText : IText
 		get => anchor;
 		private set
 		{
+			if (anchor == value)
+				return;
+
 			anchor = value;
 			resizeContainer();
 		}
@@ -94,7 +102,7 @@ public class SimpleText : IText
 	public MWColor Color
 	{
 		get {
-			var color = label.GetColor("font_color");
+			var color = label.GetColor("default_color");
 			return new MWColor(
 				color.r,
 				color.g,
@@ -102,49 +110,52 @@ public class SimpleText : IText
 				color.a);
 		}
 		private set {
-			label.AddColorOverride("font_color", new Color(value.R, value.G, value.B, value.A));
+			label.AddColorOverride("default_color", new Color(value.R, value.G, value.B, value.A));
 		}
 	}
 
 	public SimpleText(IActor actor)
 	{
-		textMesh = new MeshInstance()
+		textMesh = new QuadMesh();
+		textMeshInstance = new MeshInstance()
 		{
-			Scale = new Vector3(1, 1, 0.01f),
-			Name = "FontMesh"
+			Name = "FontMesh",
+			Mesh = textMesh
 		};
 
-		actor.Node3D.AddChild(textMesh);
+		actor.Node3D.AddChild(textMeshInstance);
 
-		textViewport= new Viewport() {
-			Size = new Vector2(500, 200),
+		textViewport = new Viewport() {
+			Size = new Vector2(500, 500),
 			TransparentBg = true,
 			RenderTargetVFlip = true,
 		};
 
-		label = new Label();
+		label = new RichTextLabel();
+		label.ScrollActive = false;
 		dynamicFont = new DynamicFont()
 		{
 			FontData = ResourceLoader.Load<DynamicFontData>("MREGodotRuntime/Scripts/Fonts/NanumSquareRound/NanumSquareRoundR.ttf"),
-			Size = 60
+			Size = 400
 		};
-		label.AddFontOverride("font", dynamicFont);
+		label.AddFontOverride("normal_font", dynamicFont);
 		//label.Connect("resized", actor.Node3D, nameof(resizeContainer));
 
 		textViewport.AddChild(label);
-		textMesh.AddChild(textViewport);
+		textMeshInstance.AddChild(textViewport);
 
-		var mesh = new CubeMesh();
-		textMesh.Mesh = mesh;
+		var viewportTexture = textViewport.GetTexture();
+		viewportTexture.Flags |= (uint)Texture.FlagsEnum.Filter;
 
 		var textMeshMaterial = new SpatialMaterial()
 		{
 			FlagsTransparent = true,
 			ParamsCullMode = SpatialMaterial.CullMode.Disabled,
-			AlbedoTexture = textViewport.GetTexture(),
+			AlbedoTexture = viewportTexture,
 		};
+		
 
-		textMesh.MaterialOverride = textMeshMaterial;
+		textMeshInstance.Mesh.SurfaceSetMaterial(0, textMeshMaterial);
 
 		// set defaults
 		Enabled = true;
@@ -175,11 +186,25 @@ public class SimpleText : IText
 
 	private void resizeContainer()
 	{
-		label.RectSize = dynamicFont.GetStringSize(label.Text);
-		textViewport.Size = new Vector2(label.RectSize.x * 3f, label.RectSize.y * 2f);
+		float width = 0f;
+		var lines = label.Text.Split('\n');
+		foreach (var line in label.Text.Split('\n'))
+		{
+			var stringSize = dynamicFont.GetStringSize(line).x;
+			if (width < stringSize)
+				width = stringSize;
+		}
+
+		label.RectSize = new Vector2(width, lines.Length * dynamicFont.GetHeight());
+		textViewport.Size = label.RectSize;
+		textMesh.Size = new Vector2(label.RectSize.x / 428.84f, lines.Length) * Height;
+		//textMeshInstance.TranslateObjectLocal(-Pivot[Anchor]);
+		//dynamicFont.Size = (int)(400 * Height);
+		/*
 		textMesh.Scale = new Vector3(label.RectSize.x * 0.003f,
 									label.RectSize.y * 0.003f,
 									textMesh.Scale.z);
 		textMesh.Translation = Pivot[Anchor] * textMesh.Scale;
+		*/
 	}
 }
