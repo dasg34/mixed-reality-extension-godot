@@ -74,14 +74,15 @@ namespace MixedRealityExtension.Core
 					rigidBody.MoveRotation(_sceneRoot.rotation * rotation.ToQuaternion());
 				});
 		}
-
+*/
 		/// <inheritdoc />
 		public void RigidBodyAddForce(MWVector3 force)
 		{
 			_updateActions.Enqueue(
 				(rigidBody) =>
 				{
-					rigidBody.AddForce(_sceneRoot.ToGlobal(force.ToVector3()));
+					rigidBody.GetParent().PrintTreePretty();
+					rigidBody.ApplyCentralImpulse(_sceneRoot.ToGlobal(force.ToVector3()));
 				});
 		}
 
@@ -91,7 +92,7 @@ namespace MixedRealityExtension.Core
 			_updateActions.Enqueue(
 				(rigidBody) =>
 				{
-					rigidBody.AddForceAtPosition(_sceneRoot.ToGlobal(force.ToVector3()), _sceneRoot.ToGlobal(position.ToVector3()));
+					rigidBody.ApplyImpulse(_sceneRoot.ToGlobal(position.ToVector3()), _sceneRoot.ToGlobal(force.ToVector3()));
 				});
 		}
 
@@ -111,10 +112,10 @@ namespace MixedRealityExtension.Core
 			_updateActions.Enqueue(
 				(rigidBody) =>
 				{
-					rigidBody.AddRelativeTorque(_sceneRoot.ToGlobal(relativeTorque.ToVector3()));
+					rigidBody.AddTorque(_sceneRoot.ToGlobal(relativeTorque.ToVector3()));
 				});
 		}
-*/
+
 		internal void Update()
 		{
 			if (_rigidbody == null)
@@ -142,7 +143,7 @@ namespace MixedRealityExtension.Core
 
 			// No need to read Position or Rotation. They're write-only from the patch to the component.
 			Mass = rigidbody.Mass;
-			DetectCollisions = !rigidbody.GetChild<CollisionShape>().Disabled;
+			DetectCollisions = !rigidbody.GetChild<CollisionShape>()?.Disabled ?? false;
 			CollisionDetectionMode = rigidbody.ContinuousCd switch
 			{
 				true => MRECollisionDetectionMode.Continuous,

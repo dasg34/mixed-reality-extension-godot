@@ -395,7 +395,7 @@ namespace MixedRealityExtension.Core
 		{
 			//PatchExclusive(actorPatch.ExclusiveToUser);
 			PatchName(actorPatch.Name);
-			//PatchOwner(actorPatch.Owner);
+			PatchOwner(actorPatch.Owner);
 			PatchParent(actorPatch.ParentId);
 			PatchAppearance(actorPatch.Appearance);
 			PatchTransform(actorPatch.Transform);
@@ -1106,7 +1106,7 @@ namespace MixedRealityExtension.Core
 				base.Name = Name;
 			}
 		}
-/*
+/*FIXME
 		private void PatchExclusive(Guid? exclusiveToUser)
 		{
 			if (App.UsePhysicsBridge && exclusiveToUser.HasValue)
@@ -1117,7 +1117,7 @@ namespace MixedRealityExtension.Core
 				_isExclusiveToUser = App.LocalUser.Id == exclusiveToUser.Value;
 			}
 		}
-
+*/
 		private void PatchOwner(Guid? ownerOrNull)
 		{
 			if (App.UsePhysicsBridge)
@@ -1156,7 +1156,7 @@ namespace MixedRealityExtension.Core
 				}
 			}
 		}
-*/
+
 		private void PatchAppearance(AppearancePatch appearance)
 		{
 			if (appearance == null)
@@ -2052,9 +2052,9 @@ namespace MixedRealityExtension.Core
 		}
 
 		#endregion
-/*FIXME
-		#region Command Handlers - Rigid Body Commands
 
+		#region Command Handlers - Rigid Body Commands
+/*FIXME
 		[CommandHandler(typeof(RBMovePosition))]
 		private void OnRBMovePosition(RBMovePosition payload, Action onCompleteCallback)
 		{
@@ -2068,7 +2068,7 @@ namespace MixedRealityExtension.Core
 			RigidBody?.RigidBodyMoveRotation(new MWQuaternion().ApplyPatch(payload.Rotation));
 			onCompleteCallback?.Invoke();
 		}
-
+*/
 		[CommandHandler(typeof(RBAddForce))]
 		private void OnRBAddForce(RBAddForce payload, Action onCompleteCallback)
 		{
@@ -2105,6 +2105,5 @@ namespace MixedRealityExtension.Core
 		}
 
 		#endregion
-*/
 	}
 }
