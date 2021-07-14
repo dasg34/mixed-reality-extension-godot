@@ -205,8 +205,8 @@ namespace MixedRealityExtension.Core
 			if (patch.ConstraintFlags.HasValue)
 			{
 				if ((bool)patch.ConstraintFlags?.HasFlag(MRERigidBodyConstraints.FreezePositionX)) _rigidbody.AxisLockLinearX = true;
-				if ((bool)patch.ConstraintFlags?.HasFlag(MRERigidBodyConstraints.FreezePositionY)) _rigidbody.AxisLockLinearX = true;
-				if ((bool)patch.ConstraintFlags?.HasFlag(MRERigidBodyConstraints.FreezePositionZ)) _rigidbody.AxisLockLinearX = true;
+				if ((bool)patch.ConstraintFlags?.HasFlag(MRERigidBodyConstraints.FreezePositionY)) _rigidbody.AxisLockLinearY = true;
+				if ((bool)patch.ConstraintFlags?.HasFlag(MRERigidBodyConstraints.FreezePositionZ)) _rigidbody.AxisLockLinearZ = true;
 				if ((bool)patch.ConstraintFlags?.HasFlag(MRERigidBodyConstraints.FreezeRotationX)) _rigidbody.AxisLockAngularX = true;
 				if ((bool)patch.ConstraintFlags?.HasFlag(MRERigidBodyConstraints.FreezeRotationY)) _rigidbody.AxisLockAngularY = true;
 				if ((bool)patch.ConstraintFlags?.HasFlag(MRERigidBodyConstraints.FreezeRotationZ)) _rigidbody.AxisLockAngularZ = true;

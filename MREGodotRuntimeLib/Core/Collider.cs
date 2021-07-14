@@ -109,14 +109,19 @@ namespace MixedRealityExtension.Core
 		{
 			_ownerActor = collisionShape.GetParent().GetParent<Actor>()
 				?? throw new Exception("An MRE collider must be associated with an MRE actor.");
-			_physicsbody = _ownerActor.GetParent() as Godot.RigidBody;
 			if (_physicsbody == null)
 			{
-				_physicsbody = new StaticBody()
+				_physicsbody = _ownerActor.GetParent() as Godot.RigidBody;
+				if (_physicsbody == null)
 				{
-					PhysicsMaterialOverride = new PhysicsMaterial()
-				};
-				_ownerActor.AddChild(_physicsbody);
+					_physicsbody = new StaticBody()
+					{
+						Name = "StaticBody",
+						PhysicsMaterialOverride = new PhysicsMaterial()
+					};
+					_ownerActor.AddChild(_physicsbody);
+				}
+				_physicsbody.AddChild(collisionShape.Duplicate());
 			}
 			_collider = collisionShape;
 
@@ -146,14 +151,9 @@ namespace MixedRealityExtension.Core
 		{
 			_collider.Disabled = _collider.Disabled.GetPatchApplied(!IsEnabled.ApplyPatch(patch.Enabled));
 
-			if (!patch.IsTrigger ?? true)
-			{
-				_physicsbody.AddChild(_collider.Duplicate());
-			}
-			else
+			if (patch.IsTrigger ?? false)
 			{
 				var rigidbodyShape = _physicsbody.GetChild<CollisionShape>();
-				_physicsbody.PrintTreePretty();
 				if (rigidbodyShape != null)
 					_physicsbody.RemoveChild(rigidbodyShape);
 			}
@@ -282,12 +282,18 @@ namespace MixedRealityExtension.Core
 
 		private void OnAreaEnter(Area area)
 		{
-			SendAreaEvent(ColliderEventType.TriggerEnter, area);
+			if (area is Collider collider && collider._physicsbody is Godot.RigidBody)
+			{
+				SendAreaEvent(ColliderEventType.TriggerEnter, area);
+			}
 		}
 
 		private void OnAreaExit(Area area)
 		{
-			SendAreaEvent(ColliderEventType.TriggerExit, area);
+			if (area is Collider collider && collider._physicsbody is Godot.RigidBody)
+			{
+				SendAreaEvent(ColliderEventType.TriggerExit, area);
+			}
 		}
 
 		private void OnBodyShapeEnter(int bodyId, CollisionObject body, int bodyShape, int areaShape)
