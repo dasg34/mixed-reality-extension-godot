@@ -58,6 +58,28 @@ namespace MixedRealityExtension.Factories
 		}
 
 		/// <inheritdoc />
+		public virtual void ApplyLayerToCollider(CollisionLayer? layer, PhysicsBody physicsBody)
+		{
+			if (!layer.HasValue) return;
+
+			switch (layer)
+			{
+				case CollisionLayer.Default:
+					physicsBody.CollisionLayer = defaultLayer;
+					break;
+				case CollisionLayer.Navigation:
+					physicsBody.CollisionLayer = navigationLayer;
+					break;
+				case CollisionLayer.Hologram:
+					physicsBody.CollisionLayer = hologramLayer;
+					break;
+				case CollisionLayer.UI:
+					physicsBody.CollisionLayer = uiLayer;
+					break;
+			}
+		}
+
+		/// <inheritdoc />
 		public virtual CollisionLayer DetermineLayerOfCollider(Area area)
 		{
 			if (area.CollisionLayer == navigationLayer)

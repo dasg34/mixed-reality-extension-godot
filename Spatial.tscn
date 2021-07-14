@@ -1,0 +1,75 @@
+[gd_scene load_steps=13 format=2]
+
+[ext_resource path="res://RigidBody2.cs" type="Script" id=1]
+
+[sub_resource type="PhysicsMaterial" id=10]
+friction = 0.0
+
+[sub_resource type="BoxShape" id=1]
+
+[sub_resource type="CubeMesh" id=2]
+
+[sub_resource type="BoxShape" id=3]
+
+[sub_resource type="PhysicsMaterial" id=4]
+
+[sub_resource type="CubeMesh" id=5]
+
+[sub_resource type="BoxShape" id=6]
+
+[sub_resource type="PhysicsMaterial" id=11]
+friction = 0.1
+
+[sub_resource type="BoxShape" id=7]
+
+[sub_resource type="SpatialMaterial" id=8]
+albedo_color = Color( 0.792157, 1, 0.635294, 1 )
+
+[sub_resource type="CubeMesh" id=9]
+material = SubResource( 8 )
+
+[node name="Spatial" type="Spatial"]
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 0.999598, 0.00629281, -0.0276331, 0, 0.975037, 0.222042, 0.0283406, -0.221953, 0.974645, 0, 9.16189, 40.2301 )
+
+[node name="RigidBody" type="RigidBody" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.07237, 0 )
+physics_material_override = SubResource( 10 )
+contacts_reported = 32
+contact_monitor = true
+script = ExtResource( 1 )
+
+[node name="CollisionShape2" type="CollisionShape" parent="RigidBody"]
+shape = SubResource( 1 )
+
+[node name="MeshInstance" type="MeshInstance" parent="RigidBody"]
+mesh = SubResource( 2 )
+material/0 = null
+
+[node name="Area" type="Area" parent="RigidBody"]
+
+[node name="CollisionShape" type="CollisionShape" parent="RigidBody/Area"]
+shape = SubResource( 3 )
+
+[node name="Actor" type="RigidBody" parent="."]
+transform = Transform( -0.289784, -0.957092, 0, 0.957092, -0.289784, 0, 0, 0, 1, -9.06317, 7.07494, 0 )
+physics_material_override = SubResource( 4 )
+
+[node name="MeshInstance" type="MeshInstance" parent="Actor"]
+mesh = SubResource( 5 )
+material/0 = null
+
+[node name="CollisionShape" type="CollisionShape" parent="Actor"]
+shape = SubResource( 6 )
+
+[node name="StaticBody" type="StaticBody" parent="."]
+transform = Transform( 20, 0, 0, 0, 0.8845, -9.33082, 0, 0.466541, 17.69, 0, 0, 0 )
+physics_material_override = SubResource( 11 )
+
+[node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
+shape = SubResource( 7 )
+
+[node name="MeshInstance" type="MeshInstance" parent="StaticBody"]
+mesh = SubResource( 9 )
+material/0 = null
