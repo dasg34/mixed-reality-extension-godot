@@ -393,20 +393,20 @@ namespace MixedRealityExtension.Core
 
 		internal void ApplyPatch(ActorPatch actorPatch)
 		{
-			//PatchExclusive(actorPatch.ExclusiveToUser);
+			PatchExclusive(actorPatch.ExclusiveToUser);
 			PatchName(actorPatch.Name);
 			PatchOwner(actorPatch.Owner);
 			PatchParent(actorPatch.ParentId);
 			PatchAppearance(actorPatch.Appearance);
 			PatchTransform(actorPatch.Transform);
+			PatchLight(actorPatch.Light);
+			PatchRigidBody(actorPatch.RigidBody);
 			PatchCollider(actorPatch.Collider);
 			PatchText(actorPatch.Text);
 			PatchAttachment(actorPatch.Attachment);
 			PatchLookAt(actorPatch.LookAt);
-			PatchLight(actorPatch.Light);
-			PatchSubscriptions(actorPatch.Subscriptions);
-			PatchRigidBody(actorPatch.RigidBody);
 			PatchGrabbable(actorPatch.Grabbable);
+			PatchSubscriptions(actorPatch.Subscriptions);
 		}
 
 		internal void ApplyCorrection(ActorCorrection actorCorrection)
@@ -935,8 +935,19 @@ namespace MixedRealityExtension.Core
 		{
 			if (_rigidbody == null)
 			{
-				_rigidbody = new GodotRigidBody();
-				AddChild(_rigidbody);
+				var parent = GetParent();
+				_rigidbody = new GodotRigidBody()
+				{
+					PhysicsMaterialOverride = new PhysicsMaterial()
+				};
+				GD.Print(Transform);
+				_rigidbody.GlobalTransform = GlobalTransform;
+				GD.Print("after : " + Transform);
+				Transform = Transform.Identity;
+				parent.AddChild(_rigidbody);
+				parent.RemoveChild(this);
+				_rigidbody.AddChild(this);
+
 				RigidBody = new RigidBody(_rigidbody, App.SceneRoot);
 
 				if (App.UsePhysicsBridge)
@@ -1038,15 +1049,19 @@ namespace MixedRealityExtension.Core
 			}
 
 			_collider = godotCollisionShape;
-/*FIXME
+
 			// update bounciness and frictions 
-			if (colliderPatch.Bounciness.HasValue)
-				_collider.material.bounciness = colliderPatch.Bounciness.Value;
-			if (colliderPatch.StaticFriction.HasValue)
-				_collider.material.staticFriction = colliderPatch.StaticFriction.Value;
-			if (colliderPatch.DynamicFriction.HasValue)
-				_collider.material.dynamicFriction = colliderPatch.DynamicFriction.Value;
-*/
+			if (_rigidbody != null)
+			{
+				if (colliderPatch.Bounciness.HasValue)
+					_rigidbody.PhysicsMaterialOverride.Bounce = colliderPatch.Bounciness.Value;
+				if (colliderPatch.StaticFriction.HasValue)
+				{
+					GD.PushWarning("StaticFriction is not supported in godot mre. please use DynamicFriction instead.");
+				}
+				if (colliderPatch.DynamicFriction.HasValue)
+					_rigidbody.PhysicsMaterialOverride.Friction = colliderPatch.DynamicFriction.Value;
+			}
 			if (Collider == null)
 			{
 				Collider = new Collider();
@@ -1106,7 +1121,7 @@ namespace MixedRealityExtension.Core
 				base.Name = Name;
 			}
 		}
-/*FIXME
+
 		private void PatchExclusive(Guid? exclusiveToUser)
 		{
 			if (App.UsePhysicsBridge && exclusiveToUser.HasValue)
@@ -1117,7 +1132,7 @@ namespace MixedRealityExtension.Core
 				_isExclusiveToUser = App.LocalUser.Id == exclusiveToUser.Value;
 			}
 		}
-*/
+
 		private void PatchOwner(Guid? ownerOrNull)
 		{
 			if (App.UsePhysicsBridge)
@@ -1542,15 +1557,18 @@ namespace MixedRealityExtension.Core
 						_pendingColliderPatch.Enabled = colliderPatch.Enabled.Value;
 					if (colliderPatch.IsTrigger.HasValue)
 						_pendingColliderPatch.IsTrigger = colliderPatch.IsTrigger.Value;
-/*FIXME
-					// update bounciness and frictions 
-					if (colliderPatch.Bounciness.HasValue)
-						_collider.material.bounciness = colliderPatch.Bounciness.Value;
-					if (colliderPatch.StaticFriction.HasValue)
-						_collider.material.staticFriction = colliderPatch.StaticFriction.Value;
-					if (colliderPatch.DynamicFriction.HasValue)
-						_collider.material.dynamicFriction = colliderPatch.DynamicFriction.Value;
-*/
+
+					if (_rigidbody != null)
+					{
+						if (colliderPatch.Bounciness.HasValue)
+							_rigidbody.PhysicsMaterialOverride.Bounce = colliderPatch.Bounciness.Value;
+						if (colliderPatch.StaticFriction.HasValue)
+						{
+							GD.PushWarning("StaticFriction is not supported in godot mre. please use DynamicFriction instead.");
+						}
+						if (colliderPatch.DynamicFriction.HasValue)
+							_rigidbody.PhysicsMaterialOverride.Friction = colliderPatch.DynamicFriction.Value;
+					}
 				}
 				else if (_pendingColliderPatch == null)
 				{

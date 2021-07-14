@@ -81,8 +81,7 @@ namespace MixedRealityExtension.Core
 			_updateActions.Enqueue(
 				(rigidBody) =>
 				{
-					rigidBody.GetParent().PrintTreePretty();
-					rigidBody.ApplyCentralImpulse(_sceneRoot.ToGlobal(force.ToVector3()));
+					rigidBody.AddCentralForce(_sceneRoot.ToGlobal(force.ToVector3()));
 				});
 		}
 
@@ -92,7 +91,7 @@ namespace MixedRealityExtension.Core
 			_updateActions.Enqueue(
 				(rigidBody) =>
 				{
-					rigidBody.ApplyImpulse(_sceneRoot.ToGlobal(position.ToVector3()), _sceneRoot.ToGlobal(force.ToVector3()));
+					rigidBody.AddForce(_sceneRoot.ToGlobal(position.ToVector3()), _sceneRoot.ToGlobal(force.ToVector3()));
 				});
 		}
 

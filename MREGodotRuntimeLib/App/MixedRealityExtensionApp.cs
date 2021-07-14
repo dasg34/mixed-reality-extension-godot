@@ -59,7 +59,7 @@ namespace MixedRealityExtension.App
 		private float _timeSinceLastPhysicsUpdate = 0.0f;
 		private bool _shouldSendPhysicsUpdate = false;
 
-		private float _fixedDeltaTime = 1000f / Engine.IterationsPerSecond;
+		private float _fixedDeltaTime = 1f / Engine.IterationsPerSecond;
 
 		private enum AppState
 		{
